@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Historial — {{ nombre_paciente }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a href="{{ url_for('pacientes') }}">Pacientes</a>
+        <span>/</span>
+        <a href="{{ url_for('ficha_paciente', patient_id=patient_id) }}">{{ nombre_paciente }}</a>
+        <span>/</span>
+        <span>Historial de atenciones</span>
+      </div>
+      <h2 class="page-title">Historial de atenciones</h2>
+      <p class="page-subtitle">{{ nombre_paciente }}</p>
+    </div>
+    <a href="{{ url_for('ficha_paciente', patient_id=patient_id) }}" class="btn-secondary">
+      ← Volver a ficha
+    </a>
+  </div>
+
+  {% if atenciones %}
+  <div class="table-card">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 90px;
+                padding:10px 20px;border-bottom:1px solid var(--border);background:var(--surface-2);">
+      <span class="col-header">Fecha y hora inicio</span>
+      <span class="col-header">Fecha y hora fin</span>
+      <span class="col-header">Duración</span>
+      <span class="col-header">Estudiante</span>
+      <span class="col-header">Acciones</span>
+    </div>
+
+    {% for a in atenciones | sort(attribute='inicio', reverse=True) %}
+    {% set inicio_str = a.inicio[:16].replace('T',' ') if a.inicio else '—' %}
+    {% set fin_str    = a.fin[:16].replace('T',' ')    if a.fin    else '—' %}
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 90px;
+                align-items:center;padding:13px 20px;
+                border-bottom:1px solid var(--border);transition:background 0.12s;"
+         onmouseover="this.style.background='var(--surface-2)'"
+         onmouseout="this.style.background=''">
+
+      <span style="font-family:var(--font-mono);font-size:13px;">{{ inicio_str }}</span>
+      <span style="font-family:var(--font-mono);font-size:13px;">{{ fin_str }}</span>
+
+      <!-- Duración calculada en JS -->
+      <span class="hist-duracion" data-inicio="{{ a.inicio }}" data-fin="{{ a.fin }}"
+            style="font-size:13px;color:var(--text-secondary);">—</span>
+
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="patient-avatar" style="width:28px;height:28px;font-size:11px;">
+          {{ a.estudiante[0]|upper if a.estudiante else '?' }}
+        </div>
+        <span style="font-size:13px;font-weight:500;">{{ a.estudiante }}</span>
+      </div>
+
+      <div style="display:flex;gap:6px;">
+        {% if a.bundle_id %}
+        <a href="{{ url_for('detalle_atencion_route', patient_id=patient_id, bundle_id=a.bundle_id) }}"
+           class="btn-action btn-view" title="Ver detalle">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                  stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </a>
+        {% else %}
+        <span style="font-size:11px;color:var(--text-tertiary);">Sin documento</span>
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  <p class="table-footer">
+    {{ atenciones|length }} atención{% if atenciones|length != 1 %}es{% endif %} registrada{% if atenciones|length != 1 %}s{% endif %}
+  </p>
+
+  <script>
+  document.querySelectorAll('.hist-duracion').forEach(function(el) {
+    var inicio = el.dataset.inicio;
+    var fin    = el.dataset.fin;
+    if (!inicio || !fin) return;
+    try {
+      var ms  = new Date(fin) - new Date(inicio);
+      var min = Math.floor(ms / 60000);
+      el.textContent = min >= 60
+        ? Math.floor(min/60) + 'h ' + (min%60) + 'min'
+        : min + ' min';
+    } catch(e) {}
+  });
+  </script>
+
+  {% else %}
+  <div class="table-card">
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="empty-title">Sin atenciones registradas</p>
+      <p class="empty-subtitle">Aún no se ha realizado ninguna atención clínica para este paciente.</p>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

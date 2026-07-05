@@ -1,0 +1,806 @@
+{% extends 'base.html' %}
+{% block title %}Crear paciente — PHANTOM HCD{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a href="{{ url_for('pacientes') }}">Pacientes</a>
+        <span>/</span><span>Crear paciente</span>
+      </div>
+      <h2 class="page-title">Nuevo paciente</h2>
+      <p class="page-subtitle">Completa los datos para registrar un nuevo paciente</p>
+    </div>
+    <div class="header-actions">
+      <a href="{{ url_for('pacientes') }}" class="btn-secondary">Cancelar</a>
+      <button type="submit" form="form-paciente" class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M17 21v-8H7v8M7 3v5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Guardar paciente
+      </button>
+    </div>
+  </div>
+
+  <form id="form-paciente" method="POST" action="{{ url_for('crear_paciente') }}" novalidate>
+
+    <!-- ══ 1. DATOS PERSONALES ══════════════════════════════ -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Datos Personales</h3>
+      </div>
+      <div class="form-grid col-3">
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Nombre(s) <span class="required">*</span></label>
+          <input type="text" name="nombre" class="patient-form-input" placeholder="Ej: Juan Andrés" required>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Apellido paterno <span class="required">*</span></label>
+          <input type="text" name="apellido" class="patient-form-input" placeholder="Ej: Pérez" required>
+        </div>
+
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">RUT <span class="required">*</span></label>
+          <input type="text" name="rut" class="patient-form-input" placeholder="12.345.678-9" required>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Fecha de nacimiento <span class="required">*</span></label>
+          <input type="date" name="fecha_nacimiento" class="patient-form-input" required>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Sexo biológico <span class="required">*</span></label>
+          <select name="sexo_biologico" class="patient-form-input patient-form-select" required>
+            <option value="" disabled selected>Seleccionar</option>
+            <option value="Hombre">Hombre</option>
+            <option value="Mujer">Mujer</option>
+            <option value="Intersexual">Intersexual</option>
+            <option value="No Informado">No Informado</option>
+            <option value="Desconocido">Desconocido</option>
+          </select>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Identidad de género<span class="required">*</span></label>
+          <select name="identidad_genero" class="patient-form-input patient-form-select">
+            <option value="" disabled selected>Seleccionar</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenina">Femenina</option>
+            <option value="Transgénero Masculino">Transgénero Masculino</option>
+            <option value="Transgénero Femenina">Transgénero Femenina</option>
+            <option value="No binarie">No binarie</option>
+            <option value="Otra">Otra</option>
+            <option value="No Revelado">No Revelado</option>
+          </select>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Nacionalidad <span class="required">*</span></label>
+          <select name="nacionalidad" class="patient-form-input patient-form-select" required>
+            <option value="" disabled selected>Seleccionar</option>
+            <option value="Chile">Chile</option>
+            <option value="Argentina">Argentina</option>
+            <option value="Bolivia">Bolivia</option>
+            <option value="Brasil">Brasil</option>
+            <option value="Colombia">Colombia</option>
+            <option value="Cuba">Cuba</option>
+            <option value="Ecuador">Ecuador</option>
+            <option value="España">España</option>
+            <option value="Estados Unidos">Estados Unidos</option>
+            <option value="Haití">Haití</option>
+            <option value="México">México</option>
+            <option value="Panamá">Panamá</option>
+            <option value="Paraguay">Paraguay</option>
+            <option value="Perú">Perú</option>
+            <option value="República Dominicana">República Dominicana</option>
+            <option value="Uruguay">Uruguay</option>
+            <option value="Venezuela">Venezuela</option>
+            <option value="Otra">Otra</option>
+          </select>
+        </div>
+        <div class="patient-form-group">
+          <label class="patient-form-label">Estado civil<span class="required">*</span></label>
+          <select name="estado_civil" class="patient-form-input patient-form-select">
+            <option value="" disabled selected>Seleccionar</option>
+            <option>Soltero</option><option>Casado</option><option>Viudo</option>
+            <option>Divorciado</option><option>Separado judicialmente</option>
+            <option>Conviviente civil</option><option>Desconocido</option>
+          </select>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Pueblo indígena<span class="required">*</span></label>
+          <select name="pueblo_indigena" class="patient-form-input patient-form-select">
+            <option value="">No pertenece</option>
+            <option>Mapuche</option><option>Aymara</option><option>Rapa Nui - Pascuense</option>
+            <option>Lickanantay</option><option>Quechua</option><option>Colla</option>
+            <option>Diaguita</option><option>Kawésqar</option><option>Yagán</option>
+            <option>Chango</option><option>Otro</option>
+          </select>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Pueblo afrodescendiente<span class="required">*</span></label>
+          <select name="afrodescendiente" class="patient-form-input patient-form-select">
+            <option value="No" selected>No</option>
+            <option value="Sí">Sí</option>
+          </select>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Nivel educacional<span class="required">*</span></label>
+          <select name="nivel_educacional" class="patient-form-input patient-form-select">
+            <option value="" disabled selected>Seleccionar</option>
+            <option>Preescolar</option><option>Educación Diferencial</option>
+            <option>Básica Primaria</option><option>Media Secundaria</option>
+            <option>Educación Superior</option><option>Sin Instrucción</option>
+            <option>No recuerda</option><option>No responde</option>
+          </select>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Último curso aprobado (0–8)<span class="required">*</span></label>
+          <input type="number" name="ultimo_curso" class="patient-form-input"
+                 min="0" max="8" placeholder="Ej: 6">
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Previsión de salud<span class="required">*</span></label>
+          <select name="prevision" class="patient-form-input patient-form-select">
+            <option value="" disabled selected>Seleccionar</option>
+            <option>FONASA</option><option>ISAPRE</option><option>CAPREDENA</option>
+            <option>DIPRECA</option><option>SISA</option>
+            <option>Ninguna</option><option>Desconocido</option>
+          </select>
+        </div>
+
+        <div class="patient-form-group">
+          <label class="patient-form-label">Teléfono móvil<span class="required">*</span></label>
+          <input type="tel" name="telefono" class="patient-form-input"
+                 placeholder="+56912345678">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ 2. CONDICIONES MÉDICAS ═══════════════════════════ -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Condiciones Médicas</h3>
+        <button type="button" class="btn-add" onclick="agregarFila('condiciones')">+ Agregar</button>
+      </div>
+      <div id="condiciones" class="repeatable-list">
+        <div class="repeatable-row">
+          <div class="form-grid col-4">
+            <div class="patient-form-group">
+              <label class="patient-form-label">Nombre del diagnóstico</label>
+              <select name="cond_diagnostico[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar diagnóstico</option>
+                <option>Neumonía grave</option>
+                <option>Infarto agudo al miocardio</option>
+                <option>Accidente cerebrovascular (ACV)</option>
+                <option>Insuficiencia cardíaca descompensada</option>
+                <option>Sepsis</option>
+                <option>Insuficiencia respiratoria aguda</option>
+                <option>Diabetes mellitus descompensada</option>
+                <option>Cetoacidosis diabética</option>
+                <option>Enfermedad renal crónica avanzada</option>
+                <option>Apendicitis aguda</option>
+                <option>Pancreatitis aguda</option>
+                <option>Trauma craneoencefálico</option>
+                <option>Fractura de cadera</option>
+                <option>COVID-19 grave</option>
+                <option>Hemorragia digestiva alta</option>
+                <option>Embolia pulmonar</option>
+                <option>Shock séptico</option>
+                <option>Meningitis bacteriana</option>
+                <option>Insuficiencia hepática aguda</option>
+                <option>Síndrome de dificultad respiratoria aguda</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Estado de certeza</label>
+              <select name="cond_certeza[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar</option>
+                <option value="Confirmado">Confirmado</option>
+                <option value="Presuntivo">Presuntivo</option>
+                <option value="Diferencial">Diferencial</option>
+                <option value="Sin confirmar">Sin confirmar</option>
+                <option value="Descartado">Descartado</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Estado de la condición</label>
+              <select name="cond_estado[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar</option>
+                <option value="Activa">Activa</option>
+                <option value="Resuelta">Resuelta</option>
+                <option value="En remisión">En remisión</option>
+                <option value="Inactiva">Inactiva</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Fecha de diagnóstico</label>
+              <input type="date" name="cond_fecha[]" class="patient-form-input">
+            </div>
+          </div>
+          <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 3. ALERGIAS ══════════════════════════════════════ -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Alergias</h3>
+        <button type="button" class="btn-add" onclick="agregarFila('alergias')">+ Agregar</button>
+      </div>
+      <div id="alergias" class="repeatable-list">
+        <div class="repeatable-row">
+          <div class="form-grid col-3">
+            <div class="patient-form-group">
+              <label class="patient-form-label">Sustancia o agente</label>
+              <select name="alergia_sustancia[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar sustancia</option>
+                <option>Penicilina</option>
+                <option>Amoxicilina</option>
+                <option>Aspirina</option>
+                <option>Ibuprofeno</option>
+                <option>Ceftriaxona</option>
+                <option>Vancomicina</option>
+                <option>Metronidazol</option>
+                <option>Morfina</option>
+                <option>Codeína</option>
+                <option>Sulfonamidas</option>
+                <option>AINEs</option>
+                <option>Contraste yodado</option>
+                <option>Látex</option>
+                <option>Maní / Cacahuete</option>
+                <option>Mariscos</option>
+                <option>Leche de vaca</option>
+                <option>Huevo</option>
+                <option>Gluten / Trigo</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Manifestación clínica</label>
+              <select name="alergia_manifestacion[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar manifestación</option>
+                <option>Urticaria</option>
+                <option>Anafilaxia</option>
+                <option>Angioedema</option>
+                <option>Broncoespasmo</option>
+                <option>Hipotensión</option>
+                <option>Exantema / Rash</option>
+                <option>Prurito</option>
+                <option>Náuseas y vómitos</option>
+                <option>Diarrea</option>
+                <option>Rinitis alérgica</option>
+                <option>Eritema</option>
+                <option>Edema laríngeo</option>
+                <option>Conjuntivitis alérgica</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Criticidad</label>
+              <select name="alergia_criticidad[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar</option>
+                <option value="Alta">Alta</option>
+                <option value="Baja">Baja</option>
+                <option value="Sin determinar">Sin determinar</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Tipo de evento</label>
+              <select name="alergia_tipo[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar</option>
+                <option value="Alergia">Alergia</option>
+                <option value="Intolerancia">Intolerancia</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Estado del evento</label>
+              <select name="alergia_estado[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar</option>
+                <option value="Activa">Activa</option>
+                <option value="Inactiva">Inactiva</option>
+                <option value="Resuelta">Resuelta</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Fecha de evento</label>
+              <input type="date" name="alergia_fecha[]" class="patient-form-input">
+            </div>
+          </div>
+          <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 4. MEDICAMENTOS ══════════════════════════════════ -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M10.5 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18 14v4M16 16h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Tratamientos — Medicamentos</h3>
+        <button type="button" class="btn-add" onclick="agregarFila('medicamentos')">+ Agregar</button>
+      </div>
+      <div id="medicamentos" class="repeatable-list">
+        <div class="repeatable-row">
+          <div class="form-grid col-3">
+            <div class="patient-form-group">
+              <label class="patient-form-label">Nombre del medicamento</label>
+              <select name="med_nombre[]" class="patient-form-input patient-form-select" onchange="autocompletarMed(this)">
+                <option value="" disabled selected>Seleccionar medicamento</option>
+                <option>Paracetamol</option>
+                <option>Morfina</option>
+                <option>Tramadol</option>
+                <option>Ibuprofeno</option>
+                <option>Aspirina</option>
+                <option>Metformina</option>
+                <option>Insulina</option>
+                <option>Heparina</option>
+                <option>Warfarina</option>
+                <option>Atorvastatina</option>
+                <option>Omeprazol</option>
+                <option>Furosemida</option>
+                <option>Enalapril</option>
+                <option>Metoprolol</option>
+                <option>Ceftriaxona</option>
+                <option>Vancomicina</option>
+                <option>Amoxicilina</option>
+                <option>Metronidazol</option>
+                <option>Salbutamol</option>
+                <option>Dexametasona</option>
+                <option>Ondansetrón</option>
+                <option>Ciprofloxacino</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Dosis (valor)</label>
+              <input type="number" name="med_dosis_val[]" class="patient-form-input" placeholder="Ej: 850" min="0" step="any">
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Unidad de dosis</label>
+              <select name="med_dosis_unit[]" class="patient-form-input patient-form-select">
+                <option value="mg" selected>mg</option>
+                <option value="g">g</option>
+                <option value="mcg">mcg</option>
+                <option value="ml">ml</option>
+                <option value="UI">UI</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Frecuencia (cada)</label>
+              <input type="number" name="med_periodo[]" class="patient-form-input" placeholder="Ej: 12" min="1">
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Unidad de frecuencia</label>
+              <select name="med_periodo_unit[]" class="patient-form-input patient-form-select">
+                <option value="h" selected>Horas</option>
+                <option value="d">Días</option>
+                <option value="wk">Semanas</option>
+                <option value="mo">Meses</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Vía de administración</label>
+              <select name="med_via[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar</option>
+                <option value="Oral">Oral</option>
+                <option value="Intravenosa">Intravenosa</option>
+                <option value="Intramuscular">Intramuscular</option>
+                <option value="Subcutánea">Subcutánea</option>
+                <option value="Tópica">Tópica</option>
+                <option value="Inhalatoria">Inhalatoria</option>
+                <option value="Sublingual">Sublingual</option>
+                <option value="Rectal">Rectal</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Estado del tratamiento</label>
+              <select name="med_estado[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar</option>
+                <option value="Activo">Activo</option>
+                <option value="Suspendido">Suspendido</option>
+                <option value="Finalizado">Finalizado</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Fecha de inicio</label>
+              <input type="date" name="med_fecha[]" class="patient-form-input">
+            </div>
+          </div>
+          <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 5. INTERVENCIONES ════════════════════════════════ -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M4.5 16.5l10-10M14.5 6.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Tratamientos — Intervenciones</h3>
+        <button type="button" class="btn-add" onclick="agregarFila('intervenciones')">+ Agregar</button>
+      </div>
+      <div id="intervenciones" class="repeatable-list">
+        <div class="repeatable-row">
+          <div class="form-grid col-2">
+            <div class="patient-form-group">
+              <label class="patient-form-label">Nombre del tratamiento</label>
+              <select name="interv_nombre[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar tratamiento</option>
+                <option>Oxigenoterapia suplementaria</option>
+                <option>Ventilación mecánica invasiva</option>
+                <option>Hemodiálisis</option>
+                <option>Diálisis peritoneal</option>
+                <option>Fisioterapia respiratoria</option>
+                <option>Rehabilitación cardíaca</option>
+                <option>Rehabilitación neurológica</option>
+                <option>Fisioterapia musculoesquelética</option>
+                <option>Terapia nutricional</option>
+                <option>Terapia ocupacional</option>
+                <option>Fonoaudiología</option>
+                <option>Manejo del dolor</option>
+                <option>Cuidado de heridas</option>
+                <option>Soporte psicológico</option>
+                <option>Rehabilitación post-quirúrgica</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Tipo de tratamiento</label>
+              <select name="interv_tipo[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar</option>
+                <option value="Nutricional">Nutricional</option>
+                <option value="Rehabilitación">Rehabilitación</option>
+                <option value="Quirúrgico">Quirúrgico</option>
+                <option value="Psicológico">Psicológico</option>
+                <option value="Kinesiológico">Kinesiológico</option>
+                <option value="Educativo">Educativo</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Estado del tratamiento</label>
+              <select name="interv_estado[]" class="patient-form-input patient-form-select">
+                <option value="" disabled selected>Seleccionar</option>
+                <option value="Activo">Activo</option>
+                <option value="Finalizado">Finalizado</option>
+                <option value="Suspendido">Suspendido</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Fecha de inicio</label>
+              <input type="date" name="interv_inicio[]" class="patient-form-input">
+            </div>
+            <div class="patient-form-group">
+              <label class="patient-form-label">Fecha de fin <span style="font-weight:400;color:var(--text-tertiary)">(opcional)</span></label>
+              <input type="date" name="interv_fin[]" class="patient-form-input">
+            </div>
+          </div>
+          <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 6. OBSERVACIONES CLÍNICAS═══════════════════════ -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Observaciones Clínicas</h3>
+        <span style="font-size:11px;color:var(--text-tertiary);margin-left:auto">Opcional — selecciona los parámetros a registrar</span>
+      </div>
+
+      <!-- Grid de selección de parámetros -->
+      <div class="obs-param-grid">
+        <label class="obs-param-card" data-tipo="Presión arterial" data-es-presion="1">
+          <input type="checkbox" class="obs-param-check" hidden>
+          <div class="obs-param-icono">🫀</div>
+          <span class="obs-param-nombre">Presión arterial</span>
+          <span class="obs-param-unidad">mmHg</span>
+        </label>
+        <label class="obs-param-card" data-tipo="Frecuencia cardíaca">
+          <input type="checkbox" class="obs-param-check" hidden>
+          <div class="obs-param-icono">💓</div>
+          <span class="obs-param-nombre">Frecuencia cardíaca</span>
+          <span class="obs-param-unidad">lpm</span>
+        </label>
+        <label class="obs-param-card" data-tipo="Saturación de oxígeno">
+          <input type="checkbox" class="obs-param-check" hidden>
+          <div class="obs-param-icono">🩸</div>
+          <span class="obs-param-nombre">Saturación de oxígeno</span>
+          <span class="obs-param-unidad">%</span>
+        </label>
+        <label class="obs-param-card" data-tipo="Temperatura corporal">
+          <input type="checkbox" class="obs-param-check" hidden>
+          <div class="obs-param-icono">🌡️</div>
+          <span class="obs-param-nombre">Temperatura corporal</span>
+          <span class="obs-param-unidad">°C</span>
+        </label>
+        <label class="obs-param-card" data-tipo="Frecuencia respiratoria">
+          <input type="checkbox" class="obs-param-check" hidden>
+          <div class="obs-param-icono">🫁</div>
+          <span class="obs-param-nombre">Frecuencia respiratoria</span>
+          <span class="obs-param-unidad">resp/min</span>
+        </label>
+        <label class="obs-param-card" data-tipo="Glucosa en sangre">
+          <input type="checkbox" class="obs-param-check" hidden>
+          <div class="obs-param-icono">💉</div>
+          <span class="obs-param-nombre">Glucosa en sangre</span>
+          <span class="obs-param-unidad">mg/dL</span>
+        </label>
+      </div>
+
+      <!-- Inputs para parámetros seleccionados (se generan con JS) -->
+      <div id="obs-inputs-container" style="display:none; padding:0 20px 20px;">
+        <p class="obs-inputs-titulo">Valores iniciales</p>
+        <div id="obs-inputs-list" class="obs-inputs-lista"></div>
+      </div>
+    </div>
+    <!-- ══ hasta aca═══════════════════════ -->
+    <!-- Botones pie -->
+    <div class="form-footer">
+      <a href="{{ url_for('pacientes') }}" class="btn-secondary">Cancelar</a>
+      <button type="submit" class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M17 21v-8H7v8M7 3v5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Guardar paciente
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<!-- ══ TEMPLATES PARA FILAS DINÁMICAS ══════════════════════ -->
+
+<template id="tpl-condiciones">
+  <div class="repeatable-row">
+    <div class="form-grid col-4">
+      <div class="patient-form-group"><label class="patient-form-label">Nombre del diagnóstico</label><select name="cond_diagnostico[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar diagnóstico</option><option>Neumonía grave</option><option>Infarto agudo al miocardio</option><option>Accidente cerebrovascular (ACV)</option><option>Insuficiencia cardíaca descompensada</option><option>Sepsis</option><option>Insuficiencia respiratoria aguda</option><option>Diabetes mellitus descompensada</option><option>Cetoacidosis diabética</option><option>Enfermedad renal crónica avanzada</option><option>Apendicitis aguda</option><option>Pancreatitis aguda</option><option>Trauma craneoencefálico</option><option>Fractura de cadera</option><option>COVID-19 grave</option><option>Hemorragia digestiva alta</option><option>Embolia pulmonar</option><option>Shock séptico</option><option>Meningitis bacteriana</option><option>Insuficiencia hepática aguda</option><option>Síndrome de dificultad respiratoria aguda</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Estado de certeza</label><select name="cond_certeza[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar</option><option>Confirmado</option><option>Presuntivo</option><option>Diferencial</option><option>Sin confirmar</option><option>Descartado</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Estado de la condición</label><select name="cond_estado[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar</option><option>Activa</option><option>Resuelta</option><option>En remisión</option><option>Inactiva</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Fecha de diagnóstico</label><input type="date" name="cond_fecha[]" class="patient-form-input"></div>
+    </div>
+    <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+  </div>
+</template>
+
+<template id="tpl-alergias">
+  <div class="repeatable-row">
+    <div class="form-grid col-3">
+      <div class="patient-form-group"><label class="patient-form-label">Sustancia o agente</label><select name="alergia_sustancia[]" class="patien-form-input patient-form-select"><option value="" disabled selected>Seleccionar sustancia</option><option>Penicilina</option><option>Amoxicilina</option><option>Aspirina</option><option>Ibuprofeno</option><option>Ceftriaxona</option><option>Vancomicina</option><option>Metronidazol</option><option>Morfina</option><option>Codeína</option><option>Sulfonamidas</option><option>AINEs</option><option>Contraste yodado</option><option>Látex</option><option>Maní / Cacahuete</option><option>Mariscos</option><option>Leche de vaca</option><option>Huevo</option><option>Gluten / Trigo</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Manifestación clínica</label><select name="alergia_manifestacion[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar manifestación</option><option>Urticaria</option><option>Anafilaxia</option><option>Angioedema</option><option>Broncoespasmo</option><option>Hipotensión</option><option>Exantema / Rash</option><option>Prurito</option><option>Náuseas y vómitos</option><option>Diarrea</option><option>Rinitis alérgica</option><option>Eritema</option><option>Edema laríngeo</option><option>Conjuntivitis alérgica</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Criticidad</label><select name="alergia_criticidad[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar</option><option>Alta</option><option>Baja</option><option>Sin determinar</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Tipo de evento</label><select name="alergia_tipo[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar</option><option>Alergia</option><option>Intolerancia</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Estado del evento</label><select name="alergia_estado[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar</option><option>Activa</option><option>Inactiva</option><option>Resuelta</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Fecha de evento</label><input type="date" name="alergia_fecha[]" class="patient-form-input"></div>
+    </div>
+    <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+  </div>
+</template>
+
+<template id="tpl-medicamentos">
+  <div class="repeatable-row">
+    <div class="form-grid col-3">
+      <div class="patient-form-group"><label class="patient-form-label">Nombre del medicamento</label><select name="med_nombre[]" class="patient-form-input patient-form-select" onchange="autocompletarMed(this)"><option value="" disabled selected>Seleccionar medicamento</option><option>Paracetamol</option><option>Morfina</option><option>Tramadol</option><option>Ibuprofeno</option><option>Aspirina</option><option>Metformina</option><option>Insulina</option><option>Heparina</option><option>Warfarina</option><option>Atorvastatina</option><option>Omeprazol</option><option>Furosemida</option><option>Enalapril</option><option>Metoprolol</option><option>Ceftriaxona</option><option>Vancomicina</option><option>Amoxicilina</option><option>Metronidazol</option><option>Salbutamol</option><option>Dexametasona</option><option>Ondansetrón</option><option>Ciprofloxacino</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Dosis (valor)</label><input type="number" name="med_dosis_val[]" class="patient-form-input" placeholder="Ej: 850" step="any"></div>
+      <div class="patient-form-group"><label class="patient-form-label">Unidad de dosis</label><select name="med_dosis_unit[]" class="patient-form-input patient-form-select"><option value="mg" selected>mg</option><option value="g">g</option><option value="mcg">mcg</option><option value="ml">ml</option><option value="UI">UI</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Frecuencia (cada)</label><input type="number" name="med_periodo[]" class="patient-form-input" placeholder="Ej: 12" min="1"></div>
+      <div class="patient-form-group"><label class="patient-form-label">Unidad de frecuencia</label><select name="med_periodo_unit[]" class="patient-form-input patient-form-select"><option value="h" selected>Horas</option><option value="d">Días</option><option value="wk">Semanas</option><option value="mo">Meses</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Vía de administración</label><select name="med_via[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar</option><option>Oral</option><option>Intravenosa</option><option>Intramuscular</option><option>Subcutánea</option><option>Tópica</option><option>Inhalatoria</option><option>Sublingual</option><option>Rectal</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Estado del tratamiento</label><select name="med_estado[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar</option><option>Activo</option><option>Suspendido</option><option>Finalizado</option><option>Cancelado</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Fecha de inicio</label><input type="date" name="med_fecha[]" class="patient-form-input"></div>
+    </div>
+    <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+  </div>
+</template>
+
+<template id="tpl-intervenciones">
+  <div class="repeatable-row">
+    <div class="form-grid col-2">
+      <div class="patient-form-group"><label class="patient-form-label">Nombre del tratamiento</label><select name="interv_nombre[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar tratamiento</option><option>Oxigenoterapia suplementaria</option><option>Ventilación mecánica invasiva</option><option>Hemodiálisis</option><option>Diálisis peritoneal</option><option>Fisioterapia respiratoria</option><option>Rehabilitación cardíaca</option><option>Rehabilitación neurológica</option><option>Fisioterapia musculoesquelética</option><option>Terapia nutricional</option><option>Terapia ocupacional</option><option>Fonoaudiología</option><option>Manejo del dolor</option><option>Cuidado de heridas</option><option>Soporte psicológico</option><option>Rehabilitación post-quirúrgica</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Tipo de tratamiento</label><select name="interv_tipo[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar</option><option>Nutricional</option><option>Rehabilitación</option><option>Quirúrgico</option><option>Psicológico</option><option>Kinesiológico</option><option>Educativo</option><option>Otro</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Estado del tratamiento</label><select name="interv_estado[]" class="patient-form-input patient-form-select"><option value="" disabled selected>Seleccionar</option><option>Activo</option><option>Finalizado</option><option>Suspendido</option><option>Cancelado</option></select></div>
+      <div class="patient-form-group"><label class="patient-form-label">Fecha de inicio</label><input type="date" name="interv_inicio[]" class="patient-form-input"></div>
+      <div class="patient-form-group"><label class="patient-form-label">Fecha de fin (opcional)</label><input type="date" name="interv_fin[]" class="patient-form-input"></div>
+    </div>
+    <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+  </div>
+</template>
+
+
+<script>
+// Unidades automáticas por tipo de observación (igual me lo diste al ultimo)
+const OBS_PARAMS = {
+  "Presión arterial":        { unidad:"mmHg",      esPres:true  },
+  "Frecuencia cardíaca":     { unidad:"lpm",        esPres:false },
+  "Saturación de oxígeno":   { unidad:"%",          esPres:false },
+  "Temperatura corporal":    { unidad:"°C",         esPres:false },
+  "Frecuencia respiratoria": { unidad:"resp/min",   esPres:false },
+  "Glucosa en sangre":       { unidad:"mg/dL",      esPres:false },
+};
+
+document.querySelectorAll(".obs-param-card").forEach(card => {
+  card.addEventListener("click", () => {
+    const tipo  = card.dataset.tipo;
+    const check = card.querySelector(".obs-param-check");
+    check.checked = !check.checked;
+
+    if (check.checked) {
+      card.classList.add("selected");
+      _agregarObsInput(tipo);
+    } else {
+      card.classList.remove("selected");
+      _quitarObsInput(tipo);
+    }
+
+    const container = document.getElementById("obs-inputs-container");
+    const hay = document.querySelectorAll(".obs-param-check:checked").length > 0;
+    container.style.display = hay ? "block" : "none";
+  });
+});
+
+function _ahora() {
+  const d = new Date();
+  d.setSeconds(0, 0);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}` +
+         `T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function _agregarObsInput(tipo) {
+  const cfg  = OBS_PARAMS[tipo];
+  const list = document.getElementById("obs-inputs-list");
+  const div  = document.createElement("div");
+  div.className  = "obs-input-row";
+  div.dataset.tipo = tipo;
+
+  // IMPORTANTE: obs_valor2[] siempre presente (vacío para no-PA)
+  // para mantener alineación de arrays en el servidor.
+  if (cfg.esPres) {
+    div.innerHTML = `
+      <input type="hidden" name="obs_tipo[]" value="${tipo}">
+      <div class="obs-input-header">
+        <span class="obs-input-nombre">${tipo}</span>
+        <span class="obs-input-unidad">${cfg.unidad}</span>
+      </div>
+      <div class="obs-input-fields">
+        <div class="patient-form-group">
+          <label class="patient-form-label">Sistólica</label>
+          <input type="number" name="obs_valor[]" class="patient-form-input"
+                 placeholder="120" step="1" min="60" max="250" required>
+        </div>
+        <div class="patient-form-group">
+          <label class="patient-form-label">Diastólica</label>
+          <input type="number" name="obs_valor2[]" class="patient-form-input"
+                 placeholder="80" step="1" min="40" max="150" required>
+        </div>
+        <div class="patient-form-group">
+          <label class="patient-form-label">Fecha y hora</label>
+          <input type="datetime-local" name="obs_fecha[]" class="patient-form-input"
+                 value="${_ahora()}" required>
+        </div>
+      </div>`;
+  } else {
+    div.innerHTML = `
+      <input type="hidden" name="obs_tipo[]" value="${tipo}">
+      <input type="hidden" name="obs_valor2[]" value="">
+      <div class="obs-input-header">
+        <span class="obs-input-nombre">${tipo}</span>
+        <span class="obs-input-unidad">${cfg.unidad}</span>
+      </div>
+      <div class="obs-input-fields">
+        <div class="patient-form-group">
+          <label class="patient-form-label">Valor</label>
+          <input type="number" name="obs_valor[]" class="patient-form-input"
+                 placeholder="Ej: 75" step="any" required>
+        </div>
+        <div class="patient-form-group">
+          <label class="patient-form-label">Fecha y hora</label>
+          <input type="datetime-local" name="obs_fecha[]" class="patient-form-input"
+                 value="${_ahora()}" required>
+        </div>
+      </div>`;
+  }
+  list.appendChild(div);
+}
+
+function _quitarObsInput(tipo) {
+  const row = document.getElementById("obs-inputs-list")
+                      .querySelector(`[data-tipo="${tipo}"]`);
+  if (row) row.remove();
+}
+//hasta aca
+
+function agregarFila(seccion) {
+  const lista    = document.getElementById(seccion);
+  const template = document.getElementById("tpl-" + seccion);
+  const clon     = template.content.cloneNode(true);
+  lista.appendChild(clon);
+}
+
+function eliminarFila(btn) {
+  const fila  = btn.closest(".repeatable-row");
+  const lista = fila.parentElement;
+  if (lista.querySelectorAll(".repeatable-row").length > 1) {
+    fila.remove();
+  }
+}
+const MED_DATOS = {
+  "Paracetamol":    {dv:"500",  du:"mg", per:"6",  pu:"h", via:"Oral"},
+  "Morfina":        {dv:"10",   du:"mg", per:"4",  pu:"h", via:"Intravenosa"},
+  "Tramadol":       {dv:"50",   du:"mg", per:"8",  pu:"h", via:"Oral"},
+  "Ibuprofeno":     {dv:"400",  du:"mg", per:"8",  pu:"h", via:"Oral"},
+  "Aspirina":       {dv:"100",  du:"mg", per:"24", pu:"h", via:"Oral"},
+  "Metformina":     {dv:"850",  du:"mg", per:"12", pu:"h", via:"Oral"},
+  "Insulina":       {dv:"10",   du:"UI", per:"24", pu:"h", via:"Subcutánea"},
+  "Heparina":       {dv:"5000", du:"UI", per:"8",  pu:"h", via:"Subcutánea"},
+  "Warfarina":      {dv:"5",    du:"mg", per:"24", pu:"h", via:"Oral"},
+  "Atorvastatina":  {dv:"40",   du:"mg", per:"24", pu:"h", via:"Oral"},
+  "Omeprazol":      {dv:"20",   du:"mg", per:"24", pu:"h", via:"Oral"},
+  "Furosemida":     {dv:"40",   du:"mg", per:"24", pu:"h", via:"Oral"},
+  "Enalapril":      {dv:"10",   du:"mg", per:"12", pu:"h", via:"Oral"},
+  "Metoprolol":     {dv:"50",   du:"mg", per:"12", pu:"h", via:"Oral"},
+  "Ceftriaxona":    {dv:"1",    du:"g",  per:"24", pu:"h", via:"Intravenosa"},
+  "Vancomicina":    {dv:"1",    du:"g",  per:"12", pu:"h", via:"Intravenosa"},
+  "Amoxicilina":    {dv:"500",  du:"mg", per:"8",  pu:"h", via:"Oral"},
+  "Metronidazol":   {dv:"500",  du:"mg", per:"8",  pu:"h", via:"Intravenosa"},
+  "Salbutamol":     {dv:"2.5",  du:"mg", per:"6",  pu:"h", via:"Inhalatoria"},
+  "Dexametasona":   {dv:"8",    du:"mg", per:"8",  pu:"h", via:"Intravenosa"},
+  "Ondansetrón":    {dv:"8",    du:"mg", per:"8",  pu:"h", via:"Intravenosa"},
+  "Ciprofloxacino": {dv:"500",  du:"mg", per:"12", pu:"h", via:"Oral"},
+};
+
+function autocompletarMed(select) {
+  const fila = select.closest(".repeatable-row");
+  const d    = MED_DATOS[select.value];
+  if (!d) return;
+  fila.querySelector("[name='med_dosis_val[]']").value    = d.dv;
+  fila.querySelector("[name='med_dosis_unit[]']").value   = d.du;
+  fila.querySelector("[name='med_periodo[]']").value      = d.per;
+  fila.querySelector("[name='med_periodo_unit[]']").value = d.pu;
+  fila.querySelector("[name='med_via[]']").value          = d.via;
+}
+</script>
+{% endblock %}

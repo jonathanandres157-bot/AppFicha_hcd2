@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Iniciar sesión — PHANTOM HCD{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+
+  <div class="login-card">
+
+    <!-- Logo / encabezado -->
+    <div class="login-header">
+      <div class="login-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="login-title">PHANTOM <span>HCD</span></h1>
+      <p class="login-subtitle">Historia Clínica Digital</p>
+    </div>
+
+    <!-- Formulario -->
+    <form method="POST" action="{{ url_for('login') }}" class="login-form" novalidate>
+
+      <div class="form-group">
+        <label for="usuario" class="form-label">Usuario</label>
+        <div class="input-wrapper">
+          <span class="input-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input
+            type="text"
+            id="usuario"
+            name="usuario"
+            class="form-input"
+            placeholder="nombre de usuario"
+            autocomplete="username"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Contraseña</label>
+        <div class="input-wrapper">
+          <span class="input-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary btn-full">
+        Ingresar
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+    </form>
+
+    <p class="login-footer">Sistema de uso educativo — PHANTOM-UV</p>
+
+  </div>
+</div>
+{% endblock %}

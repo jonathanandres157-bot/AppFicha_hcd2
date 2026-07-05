@@ -1,0 +1,740 @@
+{% extends 'base.html' %}
+{% block title %}Atención — {{ encuentro.nombre_paciente }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+  <div id="at-notif" style="display:none;position:fixed;top:72px;right:1.5rem;
+     z-index:999;padding:10px 18px;border-radius:var(--radius-md);
+     font-size:13px;font-weight:500;box-shadow:var(--shadow-md);
+     transition:opacity 0.3s;"></div>
+
+  <!-- ── Encabezado de atención ─────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a href="{{ url_for('pacientes') }}">Pacientes</a>
+        <span>/</span>
+        <a href="{{ url_for('ficha_paciente', patient_id=encuentro.patient_id) }}">{{ encuentro.nombre_paciente }}</a>
+        <span>/</span>
+        <span>Atención en curso</span>
+      </div>
+      <h2 class="page-title">Atención en curso</h2>
+      <div style="display:flex;gap:1rem;align-items:center;margin-top:0.4rem;flex-wrap:wrap;">
+        <span class="at-badge-active">
+          <span class="at-pulse"></span> En curso
+        </span>
+        <span style="font-size:12px;color:var(--text-secondary);">
+          Inicio: <strong>{{ encuentro.inicio[:16].replace('T',' ') }}</strong>
+        </span>
+        <span style="font-size:12px;color:var(--text-secondary);">
+          Encounter: <code style="font-size:11px;background:var(--surface-2);padding:2px 6px;border-radius:4px;">{{ encuentro.encounter_id }}</code>
+        </span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a href="{{ url_for('ficha_paciente', patient_id=encuentro.patient_id) }}" class="btn-secondary">
+        Ver ficha
+      </a>
+      <button class="btn-danger" onclick="document.getElementById('modal-finalizar').style.display='flex'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Finalizar atención
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Observaciones PHANTOM ──────────────────────────── -->
+  <div class="at-card">
+    <div class="at-card-header">
+      <div class="fp-section-icon fp-icon-blue">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="at-card-title">Observaciones PHANTOM</span>
+      <button id="btn-phantom" class="btn-primary" style="margin-left:auto;font-size:12px;padding:6px 14px;"
+              onclick="cargarObsPhantom()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        Ver observaciones del PHANTOM
+      </button>
+    </div>
+
+    <div id="obs-phantom-section" style="display:none;">
+      <div class="obs-top-bar">
+        <div class="obs-selector-group">
+          <label class="obs-param-label" for="obs-param-select">Parámetro:</label>
+          <select id="obs-param-select" class="obs-param-select" onchange="if(this.value)renderObs(this.value)">
+            <option value="" disabled selected>Seleccionar</option>
+          </select>
+        </div>
+        <div class="obs-stats-horiz">
+          <div class="obs-stat-chip">
+            <div class="obs-stat-chip-icon up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M7 17l10-10M17 7H7M17 7v10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span class="obs-stat-chip-label">Max</span>
+            <span class="obs-stat-chip-value" id="stat-max">--</span>
+            <span class="obs-stat-chip-unit" id="stat-unit-max"></span>
+          </div>
+          <div class="obs-stat-chip">
+            <div class="obs-stat-chip-icon down"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 17H7M17 17V7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span class="obs-stat-chip-label">Min</span>
+            <span class="obs-stat-chip-value" id="stat-min">--</span>
+            <span class="obs-stat-chip-unit" id="stat-unit-min"></span>
+          </div>
+          <div class="obs-stat-chip">
+            <div class="obs-stat-chip-icon info"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <span class="obs-stat-chip-label">Total</span>
+            <span class="obs-stat-chip-value" id="stat-count">--</span>
+          </div>
+        </div>
+      </div>
+      <div class="obs-body-layout" style="min-height:360px;">
+        <div class="obs-chart-col" id="obs-chart-col">
+          <span class="obs-no-chart-msg" id="obs-no-chart-msg">Selecciona un parámetro</span>
+          <canvas id="obs-main-chart" style="display:none;"></canvas>
+        </div>
+        <div class="obs-table-col">
+          <div class="obs-table-col-header">Últimas 20 observaciones</div>
+          <div class="obs-table-scroll">
+            <table class="obs-simple-tabla">
+              <thead><tr><th>Fecha</th><th>Valor</th><th>Unidad</th></tr></thead>
+              <tbody id="obs-tabla-body">
+                <tr><td colspan="3" style="text-align:center;padding:1.5rem;color:var(--text-tertiary);">Selecciona un parámetro</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="obs-phantom-empty" style="padding:1.25rem;font-size:13px;color:var(--text-tertiary);">
+      Presiona el botón para cargar las observaciones del PHANTOM asociadas a este paciente.
+    </div>
+  </div>
+
+  <!-- ── Registro clínico ───────────────────────────────── -->
+  <div class="at-card">
+    <div class="at-card-header">
+      <div class="fp-section-icon fp-icon-green">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <span class="at-card-title">Registro clínico</span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="at-tabs">
+      <button class="at-tab active" onclick="switchTab('tab-cond',this)">Condición</button>
+      <button class="at-tab" onclick="switchTab('tab-aler',this)">Alergia</button>
+      <button class="at-tab" onclick="switchTab('tab-med',this)">Medicamento</button>
+      <button class="at-tab" onclick="switchTab('tab-trat',this)">Tratamiento</button>
+    </div>
+
+    <!-- Tab: Condición -->
+    <div id="tab-cond" class="at-tab-panel active">
+      <form method="POST" action="{{ url_for('agregar_recurso_route', patient_id=encuentro.patient_id) }}" class="at-form">
+        <input type="hidden" name="encounter_id" value="{{ encuentro.encounter_id }}">
+        <input type="hidden" name="tipo" value="condition">
+        <div class="form-grid col-4" style="padding:1.25rem;">
+          <div class="form-group">
+            <label class="form-label">Diagnóstico</label>
+            <select name="diag" class="form-input form-select" required>
+              <option value="" disabled selected>Seleccionar</option>
+              {% for d in ["Neumonía grave","Infarto agudo al miocardio","Accidente cerebrovascular (ACV)","Insuficiencia cardíaca descompensada","Sepsis","Insuficiencia respiratoria aguda","Diabetes mellitus descompensada","Cetoacidosis diabética","Enfermedad renal crónica avanzada","Apendicitis aguda","Pancreatitis aguda","Trauma craneoencefálico","Fractura de cadera","COVID-19 grave","Hemorragia digestiva alta","Embolia pulmonar","Shock séptico","Meningitis bacteriana","Insuficiencia hepática aguda","Síndrome de dificultad respiratoria aguda"] %}
+              <option>{{ d }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Certeza</label>
+            <select name="certeza" class="form-input form-select">
+              {% for op in ["Confirmado","Presuntivo","Diferencial","Sin confirmar","Descartado"] %}
+              <option>{{ op }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-input form-select">
+              {% for op in ["Activa","Resuelta","En remisión","Inactiva"] %}
+              <option>{{ op }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input type="date" name="fecha" class="form-input">
+          </div>
+        </div>
+        <div class="at-form-footer">
+          <button type="submit" class="btn-primary">+ Registrar condición</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tab: Alergia -->
+    <div id="tab-aler" class="at-tab-panel">
+      <form method="POST" action="{{ url_for('agregar_recurso_route', patient_id=encuentro.patient_id) }}" class="at-form">
+        <input type="hidden" name="encounter_id" value="{{ encuentro.encounter_id }}">
+        <input type="hidden" name="tipo" value="allergy">
+        <div class="form-grid col-3" style="padding:1.25rem;">
+          <div class="form-group">
+            <label class="form-label">Sustancia</label>
+            <select name="sustancia" class="form-input form-select" required>
+              <option value="" disabled selected>Seleccionar</option>
+              {% for s in ["Penicilina","Amoxicilina","Aspirina","Ibuprofeno","Ceftriaxona","Vancomicina","Metronidazol","Morfina","Codeína","Sulfonamidas","AINEs","Contraste yodado","Látex","Maní / Cacahuete","Mariscos","Leche de vaca","Huevo","Gluten / Trigo"] %}
+              <option>{{ s }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Manifestación</label>
+            <select name="manifestacion" class="form-input form-select">
+              <option value="">— opcional —</option>
+              {% for m in ["Urticaria","Anafilaxia","Angioedema","Broncoespasmo","Hipotensión","Exantema / Rash","Prurito","Náuseas y vómitos","Diarrea","Rinitis alérgica","Eritema","Edema laríngeo","Conjuntivitis alérgica"] %}
+              <option>{{ m }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Criticidad</label>
+            <select name="criticidad" class="form-input form-select">
+              {% for op in ["Alta","Baja","Sin determinar"] %}
+              <option>{{ op }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select name="tipo_alergia" class="form-input form-select">
+              <option>Alergia</option><option>Intolerancia</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-input form-select">
+              {% for op in ["Activa","Inactiva","Resuelta"] %}
+              <option>{{ op }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input type="date" name="fecha" class="form-input">
+          </div>
+        </div>
+        <div class="at-form-footer">
+          <button type="submit" class="btn-primary">+ Registrar alergia</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tab: Medicamento -->
+    <div id="tab-med" class="at-tab-panel">
+      <form method="POST" action="{{ url_for('agregar_recurso_route', patient_id=encuentro.patient_id) }}" class="at-form">
+        <input type="hidden" name="encounter_id" value="{{ encuentro.encounter_id }}">
+        <input type="hidden" name="tipo" value="medication">
+        <div class="form-grid col-3" style="padding:1.25rem;">
+          <div class="form-group">
+            <label class="form-label">Medicamento</label>
+            <select name="nombre" class="form-input form-select" onchange="autoMed(this)" required>
+              <option value="" disabled selected>Seleccionar</option>
+              {% for m in ["Paracetamol","Morfina","Tramadol","Ibuprofeno","Aspirina","Metformina","Insulina","Heparina","Warfarina","Atorvastatina","Omeprazol","Furosemida","Enalapril","Metoprolol","Ceftriaxona","Vancomicina","Amoxicilina","Metronidazol","Salbutamol","Dexametasona","Ondansetrón","Ciprofloxacino"] %}
+              <option>{{ m }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dosis</label>
+            <input type="number" name="dosis_val" class="form-input" placeholder="Ej: 500" step="any">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unidad dosis</label>
+            <select name="dosis_unit" class="form-input form-select">
+              <option value="mg" selected>mg</option><option value="g">g</option>
+              <option value="mcg">mcg</option><option value="ml">ml</option><option value="UI">UI</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cada</label>
+            <input type="number" name="periodo" class="form-input" placeholder="Ej: 8">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unidad frecuencia</label>
+            <select name="periodo_unit" class="form-input form-select">
+              <option value="h" selected>Horas</option><option value="d">Días</option>
+              <option value="wk">Semanas</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vía</label>
+            <select name="via" class="form-input form-select">
+              {% for op in ["Oral","Intravenosa","Intramuscular","Subcutánea","Tópica","Inhalatoria","Sublingual","Rectal"] %}
+              <option>{{ op }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-input form-select">
+              <option>Activo</option><option>Suspendido</option><option>Finalizado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha inicio</label>
+            <input type="date" name="fecha" class="form-input">
+          </div>
+        </div>
+        <div class="at-form-footer">
+          <button type="submit" class="btn-primary">+ Registrar medicamento</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tab: Tratamiento -->
+    <div id="tab-trat" class="at-tab-panel">
+      <form method="POST" action="{{ url_for('agregar_recurso_route', patient_id=encuentro.patient_id) }}" class="at-form">
+        <input type="hidden" name="encounter_id" value="{{ encuentro.encounter_id }}">
+        <input type="hidden" name="tipo" value="treatment">
+        <div class="form-grid col-3" style="padding:1.25rem;">
+          <div class="form-group">
+            <label class="form-label">Tratamiento</label>
+            <select name="nombre" class="form-input form-select" required>
+              <option value="" disabled selected>Seleccionar</option>
+              {% for t in ["Oxigenoterapia suplementaria","Ventilación mecánica invasiva","Hemodiálisis","Diálisis peritoneal","Fisioterapia respiratoria","Rehabilitación cardíaca","Rehabilitación neurológica","Fisioterapia musculoesquelética","Terapia nutricional","Terapia ocupacional","Fonoaudiología","Manejo del dolor","Cuidado de heridas","Soporte psicológico","Rehabilitación post-quirúrgica"] %}
+              <option>{{ t }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select name="tipo_tratamiento" class="form-input form-select">
+              {% for op in ["Nutricional","Rehabilitación","Quirúrgico","Psicológico","Kinesiológico","Educativo","Otro"] %}
+              <option>{{ op }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-input form-select">
+              {% for op in ["Activo","Finalizado","Suspendido","Cancelado"] %}
+              <option>{{ op }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha inicio</label>
+            <input type="date" name="inicio" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha fin (opcional)</label>
+            <input type="date" name="fin" class="form-input">
+          </div>
+        </div>
+        <div class="at-form-footer">
+          <button type="submit" class="btn-primary">+ Registrar tratamiento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Recursos registrados ───────────────────────────── -->
+  <div class="at-resumen-grid">
+
+    <div class="at-resumen-card">
+      <div class="at-resumen-header fp-icon-green">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        Condiciones
+        <span class="at-resumen-count" id="count-conditions">{{ recursos.conditions|length }}</span>
+      </div>
+      <ul class="at-resumen-list" id="list-conditions">
+        {% for c in recursos.conditions %}
+        <li><strong>{{ c.diagnostico }}</strong> — {{ c.estado }}</li>
+        {% endfor %}
+        {% if not recursos.conditions %}
+        <li class="at-empty-li" style="color:var(--text-tertiary);font-size:12px;text-align:center;padding:1rem;">Sin registros</li>
+        {% endif %}
+      </ul>
+    </div>
+
+    <div class="at-resumen-card">
+      <div class="at-resumen-header fp-icon-red">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        Alergias
+        <span class="at-resumen-count" id="count-allergies">{{ recursos.allergies|length }}</span>
+      </div>
+      <ul class="at-resumen-list" id="list-allergies">
+        {% for a in recursos.allergies %}
+        <li><strong>{{ a.sustancia }}</strong> — {{ a.criticidad }}</li>
+        {% endfor %}
+        {% if not recursos.allergies %}
+        <li class="at-empty-li" style="color:var(--text-tertiary);font-size:12px;text-align:center;padding:1rem;">Sin registros</li>
+        {% endif %}
+      </ul>
+    </div>
+
+    <div class="at-resumen-card">
+      <div class="at-resumen-header fp-icon-blue">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <path d="M10.5 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18 14v4M16 16h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Medicamentos
+        <span class="at-resumen-count" id="count-medications">{{ recursos.medications|length }}</span>
+      </div>
+      <ul class="at-resumen-list" id="list-medications">
+        {% for m in recursos.medications %}
+        <li><strong>{{ m.nombre }}</strong> — {{ m.dosis }}</li>
+        {% endfor %}
+        {% if not recursos.medications %}
+        <li class="at-empty-li" style="color:var(--text-tertiary);font-size:12px;text-align:center;padding:1rem;">Sin registros</li>
+        {% endif %}
+      </ul>
+    </div>
+
+    <div class="at-resumen-card">
+      <div class="at-resumen-header fp-icon-purple">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <path d="M4.5 16.5l10-10M14.5 6.5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Tratamientos
+        <span class="at-resumen-count" id="count-treatments">{{ recursos.treatments|length }}</span>
+      </div>
+      <ul class="at-resumen-list" id="list-treatments">
+        {% for t in recursos.treatments %}
+        <li><strong>{{ t.nombre }}</strong> — {{ t.estado }}</li>
+        {% endfor %}
+        {% if not recursos.treatments %}
+        <li class="at-empty-li" style="color:var(--text-tertiary);font-size:12px;text-align:center;padding:1rem;">Sin registros</li>
+        {% endif %}
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ── Nota clínica + Finalizar ──────────────────────── -->
+  <div class="at-card">
+    <div class="at-card-header">
+      <div class="fp-section-icon" style="background:#f0ebfc;color:#6b1a9a;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="at-card-title">Nota clínica / Conclusiones</span>
+    </div>
+    <form method="POST" action="{{ url_for('finalizar_atencion_route', patient_id=encuentro.patient_id) }}"
+          id="form-finalizar">
+          <input type="hidden" name="encounter_id" value="{{ encuentro.encounter_id }}">
+      <div style="padding:1.25rem;">
+        <textarea name="nota_adicional" class="form-input" rows="4"
+                  placeholder="Observaciones, conclusiones, plan de seguimiento...  (opcional)"
+                  style="height:auto;resize:vertical;"></textarea>
+        <p style="font-size:11px;color:var(--text-tertiary);margin-top:0.5rem;">
+          Esta nota se registrará como Observation FHIR (LOINC 34109-9) e irá incluida en el documento clínico.
+        </p>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;padding:0 1.25rem 1.25rem;">
+        <a href="{{ url_for('ficha_paciente', patient_id=encuentro.patient_id) }}" class="btn-secondary">
+          Ver ficha (sin finalizar)
+        </a>
+        <button type="button" class="btn-danger"
+                onclick="document.getElementById('modal-finalizar').style.display='flex'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Finalizar atención
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<!-- ── Modal finalizar ────────────────────────────────── -->
+<div id="modal-finalizar" class="modal-overlay" style="display:none;"
+     onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-card">
+    <div class="modal-icon" style="background:#fff3cd;color:#856404;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+              stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3 class="modal-titulo">¿Finalizar atención?</h3>
+    <p class="modal-texto">
+      Se registrará la hora de término, se generará la <strong>Composition</strong> y el
+      <strong>Bundle documento clínico</strong> en el servidor FHIR.<br><br>
+      Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-botones">
+      <button onclick="document.getElementById('modal-finalizar').style.display='none'"
+              class="btn-secondary">Cancelar</button>
+      <button type="submit" form="form-finalizar" class="btn-danger">
+        Sí, finalizar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<script>
+// ── PHANTOM observations (AJAX + Chart.js) ────────────────
+var OBS_DASHBOARD = {};
+var currentChart  = null;
+
+var COLORES = {
+  "Presión arterial":        { s:"#e24b4a", d:"#f9a8a8" },
+  "Frecuencia cardíaca":     { s:"#e24b4a" },
+  "Saturación de oxígeno":   { s:"#1a6b4a" },
+  "Temperatura corporal":    { s:"#854f0b" },
+  "Frecuencia respiratoria": { s:"#1a6b9a" },
+  "Glucosa en sangre":       { s:"#6b1a9a" },
+};
+
+async function cargarObsPhantom() {
+  var btn = document.getElementById('btn-phantom');
+  btn.textContent = 'Cargando...';
+  btn.disabled    = true;
+
+  try {
+    var resp = await fetch('{{ url_for("obs_phantom_route", patient_id=encuentro.patient_id) }}');
+    var data = await resp.json();
+
+    if (data.error) { alert('Error: ' + data.error); return; }
+
+    OBS_DASHBOARD = data.obs_dashboard || {};
+    var tipos     = Object.keys(OBS_DASHBOARD).filter(function(t){ return t !== '(sin nombre)'; });
+
+    var sel = document.getElementById('obs-param-select');
+    sel.innerHTML = '<option value="" disabled selected>Seleccionar</option>';
+    tipos.forEach(function(t) {
+      var opt = document.createElement('option');
+      opt.value = opt.textContent = t;
+      sel.appendChild(opt);
+    });
+
+    document.getElementById('obs-phantom-section').style.display = 'block';
+    document.getElementById('obs-phantom-empty').style.display   = 'none';
+    btn.textContent = 'Actualizar (' + data.total + ' obs)';
+    btn.disabled    = false;
+
+    if (tipos.length > 0) { sel.value = tipos[0]; renderObs(tipos[0]); }
+  } catch(e) {
+    alert('Error de conexión al obtener observaciones.');
+    btn.textContent = 'Ver observaciones del PHANTOM';
+    btn.disabled    = false;
+  }
+}
+
+function renderObs(tipo) {
+  updateStats(tipo);
+  updateTabla(tipo);
+  updateGrafico(tipo);
+}
+
+function updateStats(tipo) {
+  var d    = OBS_DASHBOARD[tipo];
+  var unit = d.unidad || '';
+  var mx   = d.es_presion && d.maximo2 != null ? d.maximo+'/'+d.maximo2 : (d.maximo != null ? d.maximo : '--');
+  var mn   = d.es_presion && d.minimo2 != null ? d.minimo+'/'+d.minimo2 : (d.minimo != null ? d.minimo : '--');
+  document.getElementById('stat-max').textContent   = mx;
+  document.getElementById('stat-min').textContent   = mn;
+  document.getElementById('stat-count').textContent = d.total;
+  document.getElementById('stat-unit-max').textContent = unit ? ' '+unit : '';
+  document.getElementById('stat-unit-min').textContent = unit ? ' '+unit : '';
+}
+
+function updateTabla(tipo) {
+  var body     = document.getElementById('obs-tabla-body');
+  var d        = OBS_DASHBOARD[tipo];
+  var unit     = d.unidad || '';
+  var entradas = d.entradas.slice().sort(function(a,b){ return b.fecha > a.fecha ? 1 : -1; }).slice(0,20);
+  var rows     = '';
+  entradas.forEach(function(e) {
+    var val   = d.es_presion && e.valor2 != null ? e.valor+'/'+e.valor2 : (e.valor != null ? e.valor : '---');
+    var fecha = e.fecha_corta || e.fecha.slice(0,16).replace('T',' ');
+    rows += '<tr><td class="td-fecha">'+fecha+'</td><td><strong>'+val+'</strong></td><td>'+unit+'</td></tr>';
+  });
+  body.innerHTML = rows || '<tr><td colspan="3" style="text-align:center;padding:1rem;color:var(--text-tertiary)">Sin datos</td></tr>';
+}
+
+function updateGrafico(tipo) {
+  var canvas = document.getElementById('obs-main-chart');
+  var msg    = document.getElementById('obs-no-chart-msg');
+  var col    = document.getElementById('obs-chart-col');
+  var d      = OBS_DASHBOARD[tipo];
+  if (currentChart) { currentChart.destroy(); currentChart = null; }
+  if (!d || !d.entradas || !d.entradas.length) { canvas.style.display='none'; msg.style.display=''; return; }
+  var cw = Math.max((col.clientWidth||500)-40, 200);
+  var ch = 300;
+  canvas.width=cw; canvas.height=ch; canvas.style.width=cw+'px'; canvas.style.height=ch+'px';
+  canvas.style.display='block'; msg.style.display='none';
+  var unit = d.unidad||'';
+  var c    = COLORES[tipo] || { s:'#1a6b4a' };
+  var pts  = d.entradas.length > 20 ? 2 : 4;
+  var datasets = [{
+    label: d.es_presion ? 'Sistólica' : tipo,
+    data: d.entradas.map(function(e){ return e.valor; }),
+    borderColor:c.s, backgroundColor:c.s+'22',
+    tension:0.35, fill:!d.es_presion, pointRadius:pts, pointHoverRadius:6, borderWidth:2
+  }];
+  if (d.es_presion && c.d) datasets.push({
+    label:'Diastólica', data:d.entradas.map(function(e){ return e.valor2; }),
+    borderColor:c.d, backgroundColor:c.d+'22',
+    tension:0.35, fill:false, pointRadius:pts, pointHoverRadius:6, borderWidth:2
+  });
+  currentChart = new Chart(canvas, {
+    type:'line',
+    data:{ labels:d.entradas.map(function(e){ return e.fecha_corta; }), datasets:datasets },
+    options:{
+      responsive:false, maintainAspectRatio:false, animation:{duration:250},
+      plugins:{
+        legend:{display:!!d.es_presion, position:'top'},
+        tooltip:{ mode:'index', intersect:false, callbacks:{ label:function(ctx){ return ctx.dataset.label+': '+ctx.raw+' '+unit; } } }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:9},maxTicksLimit:10,maxRotation:0} },
+        y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:9}} }
+      }
+    }
+  });
+}
+
+// ── Tabs ───────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.at-tab').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.at-tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Autocompletar medicamento ──────────────────────────────
+var MED_DATOS = {
+  "Paracetamol":{dv:"500",du:"mg",per:"6",pu:"h",via:"Oral"},
+  "Morfina":{dv:"10",du:"mg",per:"4",pu:"h",via:"Intravenosa"},
+  "Tramadol":{dv:"50",du:"mg",per:"8",pu:"h",via:"Oral"},
+  "Ibuprofeno":{dv:"400",du:"mg",per:"8",pu:"h",via:"Oral"},
+  "Aspirina":{dv:"100",du:"mg",per:"24",pu:"h",via:"Oral"},
+  "Metformina":{dv:"850",du:"mg",per:"12",pu:"h",via:"Oral"},
+  "Insulina":{dv:"10",du:"UI",per:"24",pu:"h",via:"Subcutánea"},
+  "Heparina":{dv:"5000",du:"UI",per:"8",pu:"h",via:"Subcutánea"},
+  "Ceftriaxona":{dv:"1",du:"g",per:"24",pu:"h",via:"Intravenosa"},
+  "Vancomicina":{dv:"1",du:"g",per:"12",pu:"h",via:"Intravenosa"},
+  "Amoxicilina":{dv:"500",du:"mg",per:"8",pu:"h",via:"Oral"},
+  "Metronidazol":{dv:"500",du:"mg",per:"8",pu:"h",via:"Intravenosa"},
+  "Salbutamol":{dv:"2.5",du:"mg",per:"6",pu:"h",via:"Inhalatoria"},
+  "Dexametasona":{dv:"8",du:"mg",per:"8",pu:"h",via:"Intravenosa"},
+  "Ciprofloxacino":{dv:"500",du:"mg",per:"12",pu:"h",via:"Oral"},
+};
+function autoMed(sel) {
+  var p = sel.closest('form');
+  var d = MED_DATOS[sel.value];
+  if (!d) return;
+  p.querySelector("[name='dosis_val']").value    = d.dv;
+  p.querySelector("[name='dosis_unit']").value   = d.du;
+  p.querySelector("[name='periodo']").value      = d.per;
+  p.querySelector("[name='periodo_unit']").value = d.pu;
+  p.querySelector("[name='via']").value          = d.via;
+}
+</script>
+
+
+<script>
+// ── AJAX para los 4 formularios de recursos ───────────────
+const LIST_IDS = {
+  condition:  { list: 'list-conditions',  count: 'count-conditions'  },
+  allergy:    { list: 'list-allergies',   count: 'count-allergies'   },
+  medication: { list: 'list-medications', count: 'count-medications' },
+  treatment:  { list: 'list-treatments',  count: 'count-treatments'  },
+};
+
+function getLabel(tipo, display) {
+  switch(tipo) {
+    case 'condition':  return `<strong>${display.diagnostico}</strong> — ${display.estado}`;
+    case 'allergy':    return `<strong>${display.sustancia}</strong> — ${display.criticidad}`;
+    case 'medication': return `<strong>${display.nombre}</strong> — ${display.dosis}`;
+    case 'treatment':  return `<strong>${display.nombre}</strong> — ${display.estado}`;
+    default: return '';
+  }
+}
+
+function showNotif(msg, ok) {
+  const el = document.getElementById('at-notif');
+  el.textContent  = msg;
+  el.style.background = ok ? 'var(--accent-bg)' : 'var(--danger-bg)';
+  el.style.color      = ok ? 'var(--accent-text)' : 'var(--danger-text)';
+  el.style.border     = ok ? '1px solid #c0dd97' : '1px solid #f0c1c1';
+  el.style.display    = 'block';
+  el.style.opacity    = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(function() {
+    el.style.opacity = '0';
+    setTimeout(function() { el.style.display = 'none'; el.style.opacity = '1'; }, 300);
+  }, 3000);
+}
+
+function appendItem(tipo, display) {
+  const ids  = LIST_IDS[tipo];
+  if (!ids) return;
+  const list  = document.getElementById(ids.list);
+  const count = document.getElementById(ids.count);
+  if (!list) return;
+
+  // Quitar mensaje "Sin registros"
+  const empty = list.querySelector('.at-empty-li');
+  if (empty) empty.remove();
+
+  // Agregar nuevo ítem
+  const li = document.createElement('li');
+  li.innerHTML = getLabel(tipo, display);
+  list.appendChild(li);
+
+  // Actualizar contador
+  if (count) count.textContent = list.querySelectorAll('li').length;
+}
+
+function resetForm(form) {
+  form.querySelectorAll('select').forEach(function(sel) {
+    if (sel.name !== 'tipo') sel.selectedIndex = 0;
+  });
+  form.querySelectorAll('input[type="number"], input[type="date"]').forEach(function(inp) {
+    inp.value = '';
+  });
+}
+
+document.querySelectorAll('.at-form').forEach(function(form) {
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn = form.querySelector('button[type="submit"]');
+    const original = btn.textContent;
+    btn.textContent = 'Guardando...';
+    btn.disabled    = true;
+
+    try {
+      const resp = await fetch(form.action, {
+        method: 'POST',
+        body:   new FormData(form),
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+      });
+      const data = await resp.json();
+
+      if (data.success) {
+        appendItem(data.tipo, data.display);
+        resetForm(form);
+        showNotif('✓ Registrado correctamente', true);
+      } else {
+        showNotif(data.message || 'Error al registrar', false);
+      }
+    } catch(err) {
+      showNotif('Error de conexión', false);
+    } finally {
+      btn.textContent = original;
+      btn.disabled    = false;
+    }
+  });
+});
+</script>
+{% endblock %}

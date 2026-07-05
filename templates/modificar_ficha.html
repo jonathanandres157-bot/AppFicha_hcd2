@@ -1,0 +1,926 @@
+{% extends 'base.html' %}
+{% block title %}Modificar ficha — {{ ficha.paciente.nombre }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- ── Encabezado ─────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a href="{{ url_for('pacientes') }}">Pacientes</a>
+        <span>/</span>
+        <a href="{{ url_for('ficha_paciente', patient_id=ficha.paciente.fhir_id) }}">{{ ficha.paciente.nombre }} {{ ficha.paciente.apellido }}</a>
+        <span>/</span>
+        <span>Modificar ficha</span>
+      </div>
+      <h2 class="page-title">Modificar ficha</h2>
+      <p class="page-subtitle">Solo profesores — edición completa de todos los campos</p>
+    </div>
+    <div class="header-actions">
+      <a href="{{ url_for('ficha_paciente', patient_id=ficha.paciente.fhir_id) }}" class="btn-secondary">Cancelar</a>
+      <button type="submit" form="form-modificar" class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M17 21v-8H7v8M7 3v5h8"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+
+  <form id="form-modificar" method="POST"
+        action="{{ url_for('modificar_ficha', patient_id=ficha.paciente.fhir_id) }}">
+
+    <!-- ══ DATOS DEL PACIENTE ══════════════════════════════ -->
+    <div class="ficha-section">
+      <div class="ficha-section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Datos del paciente</h3>
+      </div>
+
+      <div class="patient-data-grid">
+        <div class="form-group">
+          <label class="form-label">Nombre(s)</label>
+          <input type="text" name="nombre" class="form-input"
+                 value="{{ ficha.paciente.nombre }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Apellido</label>
+          <input type="text" name="apellido" class="form-input"
+                 value="{{ ficha.paciente.apellido }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">RUT</label>
+          <input type="text" name="rut" class="form-input"
+                 value="{{ ficha.paciente.rut }}" placeholder="12345678-9">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha de nacimiento</label>
+          <input type="date" name="fecha_nacimiento" class="form-input"
+                 value="{{ ficha.paciente.fecha_nacimiento }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sexo biológico</label>
+          <select name="sexo_biologico" class="form-input form-select">
+            {% for op in ["Hombre","Mujer","Intersexual","No Informado","Desconocido"] %}
+            <option value="{{ op }}"
+              {% if ficha.paciente.sexo_biologico == op %}selected{% endif %}>{{ op }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Identidad de género</label>
+          <select name="identidad_genero" class="form-input form-select">
+            {% for op in ["Masculino","Femenina","Transgénero masculino","Transgénero femenina","No binarie","Otra", "No Revelado"] %}
+            <option value="{{ op }}"
+              {% if ficha.paciente.identidad_genero == op %}selected{% endif %}>{{ op }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nacionalidad</label>
+          <select name="nacionalidad" class="form-input form-select">
+            {% for op in ["Chile","Argentina","Perú","Bolivia","Brasil","Colombia","Cuba","Ecuador", "España", "Estados Unidos", "Haití", "México", "Panamá", "Paraguay", "República Dominicana", "Uruguay", "Venezuela", "Otra"] %}
+            <option value="{{ op }}"
+              {% if ficha.paciente.nacionalidad == op %}selected{% endif %}>{{ op }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado civil</label>
+          <select name="estado_civil" class="form-input form-select">
+            {% for op in ["Soltero","Casado","Viudo","Divorciado","Separado judicialmente","Conviviente civil","Desconocido"] %}
+            <option value="{{ op }}" {% if ficha.paciente.estado_civil == op %}selected{% endif %}>{{ op }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pueblo indígena</label>
+          <select name="pueblo_indigena" class="form-input form-select">
+            <option value="" {% if ficha.paciente.pueblo_indigena == '(no disponible)' %}selected{% endif %}>No pertenece</option>
+            {% for op in ["Mapuche","Aymara","Rapa Nui - Pascuense","Lickanantay","Quechua","Colla","Diaguita","Kawésqar","Yagán","Chango","Otro"] %}
+            <option value="{{ op }}" {% if ficha.paciente.pueblo_indigena == op %}selected{% endif %}>{{ op }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Afrodescendiente</label>
+          <select name="afrodescendiente" class="form-input form-select">
+            <option value="No" {% if ficha.paciente.afrodescendiente != 'Sí' %}selected{% endif %}>No</option>
+            <option value="Sí" {% if ficha.paciente.afrodescendiente == 'Sí' %}selected{% endif %}>Sí</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nivel educacional</label>
+          <select name="nivel_educacional" class="form-input form-select">
+            {% for op in ["Preescolar","Educación Diferencial","Básica Primaria","Media Secundaria","Educación Superior","Sin Instrucción","No recuerda","No responde"] %}
+            <option value="{{ op }}" {% if ficha.paciente.nivel_educacional == op %}selected{% endif %}>{{ op }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Último curso aprobado (0–8)</label>
+          <input type="number" name="ultimo_curso" class="form-input"
+                 min="0" max="8" value="{{ ficha.paciente.ultimo_curso }}">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Previsión de salud</label>
+          <select name="prevision" class="form-input form-select">
+            {% for op in ["FONASA","ISAPRE","CAPREDENA","DIPRECA","SISA","Ninguna","Desconocido"] %}
+            <option value="{{ op }}" {% if ficha.paciente.prevision == op %}selected{% endif %}>{{ op }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Teléfono móvil</label>
+          <input type="tel" name="telefono" class="form-input"
+                 value="{{ ficha.paciente.telefono if ficha.paciente.telefono != '(no disponible)' else '' }}"
+                 placeholder="+56912345678">
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONDICIONES MÉDICAS ═══════════════════════════════ -->
+    <div class="ficha-section">
+      <div class="ficha-section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Condiciones Médicas</h3>
+        <span class="section-count">{{ ficha.condiciones | length }}</span>
+      </div>
+
+      {% if ficha.condiciones %}
+      <div class="table-scroll">
+        <table class="ficha-tabla">
+          <thead>
+            <tr>
+              <th>Diagnóstico</th>
+              <th style="width:175px">Certeza</th>
+              <th style="width:155px">Estado</th>
+              <th style="width:145px">Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in ficha.condiciones %}
+            <tr>
+              <td>
+                <input type="hidden" name="exist_cond_id[]" value="{{ c.fhir_id }}">
+                <select name="exist_cond_diagnostico[]" class="form-input form-select form-input-sm">
+                  {% set diags = ["Neumonía grave","Infarto agudo al miocardio","Accidente cerebrovascular (ACV)",
+                    "Insuficiencia cardíaca descompensada","Sepsis","Insuficiencia respiratoria aguda",
+                    "Diabetes mellitus descompensada","Cetoacidosis diabética","Enfermedad renal crónica avanzada",
+                    "Apendicitis aguda","Pancreatitis aguda","Trauma craneoencefálico","Fractura de cadera",
+                    "COVID-19 grave","Hemorragia digestiva alta","Embolia pulmonar","Shock séptico",
+                    "Meningitis bacteriana","Insuficiencia hepática aguda",
+                    "Síndrome de dificultad respiratoria aguda"] %}
+                  {% for d in diags %}
+                  <option value="{{ d }}"
+                    {% if c.diagnostico == d %}selected{% endif %}>{{ d }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <select name="exist_cond_certeza[]" class="form-input form-select form-input-sm">
+                  {% for op in ["Confirmado","Presuntivo","Diferencial","Sin confirmar","Descartado"] %}
+                  <option value="{{ op }}"
+                    {% if c.certeza == op %}selected{% endif %}>{{ op }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <select name="exist_cond_estado[]" class="form-input form-select form-input-sm">
+                  {% for op in ["Activa","Resuelta","En remisión","Inactiva"] %}
+                  <option value="{{ op }}"
+                    {% if c.estado == op %}selected{% endif %}>{{ op }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <input type="date" name="exist_cond_fecha[]"
+                       value="{{ c.fecha if c.fecha != '(no disponible)' else '' }}"
+                       class="form-input form-input-sm">
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      <!-- Agregar nueva -->
+      <div class="nueva-seccion">
+        <p class="nueva-label">Agregar nueva condición</p>
+        <div id="mod-new-condiciones">
+          <div class="repeatable-row">
+            <div class="form-grid col-4">
+              <div class="form-group">
+                <label class="form-label">Diagnóstico</label>
+                <select name="new_cond_diagnostico[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Neumonía grave</option><option>Infarto agudo al miocardio</option>
+                  <option>Accidente cerebrovascular (ACV)</option><option>Insuficiencia cardíaca descompensada</option>
+                  <option>Sepsis</option><option>Insuficiencia respiratoria aguda</option>
+                  <option>Diabetes mellitus descompensada</option><option>Cetoacidosis diabética</option>
+                  <option>Enfermedad renal crónica avanzada</option><option>Apendicitis aguda</option>
+                  <option>Pancreatitis aguda</option><option>Trauma craneoencefálico</option>
+                  <option>Fractura de cadera</option><option>COVID-19 grave</option>
+                  <option>Hemorragia digestiva alta</option><option>Embolia pulmonar</option>
+                  <option>Shock séptico</option><option>Meningitis bacteriana</option>
+                  <option>Insuficiencia hepática aguda</option>
+                  <option>Síndrome de dificultad respiratoria aguda</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Certeza</label>
+                <select name="new_cond_certeza[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Confirmado</option><option>Presuntivo</option><option>Diferencial</option>
+                  <option>Sin confirmar</option><option>Descartado</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Estado</label>
+                <select name="new_cond_estado[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Activa</option><option>Resuelta</option>
+                  <option>En remisión</option><option>Inactiva</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fecha</label>
+                <input type="date" name="new_cond_fecha[]" class="form-input">
+              </div>
+            </div>
+            <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add-row"
+                onclick="agregarFila('mod-new-condiciones','tpl-mod-new-cond')">+ Agregar otra</button>
+      </div>
+    </div>
+
+    <!-- ══ ALERGIAS ══════════════════════════════════════════ -->
+    <div class="ficha-section">
+      <div class="ficha-section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Alergias</h3>
+        <span class="section-count">{{ ficha.alergias | length }}</span>
+      </div>
+
+      {% if ficha.alergias %}
+      <div class="table-scroll">
+        <table class="ficha-tabla">
+          <thead>
+            <tr>
+              <th>Sustancia</th>
+              <th style="width:155px">Manifestación</th>
+              <th style="width:140px">Criticidad</th>
+              <th style="width:130px">Tipo</th>
+              <th style="width:140px">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in ficha.alergias %}
+            <tr>
+              <td>
+                <input type="hidden" name="exist_alergia_id[]" value="{{ a.fhir_id }}">
+                <select name="exist_alergia_sustancia[]" class="form-input form-select form-input-sm">
+                  {% set sust_list = ["Penicilina","Amoxicilina","Aspirina","Ibuprofeno","Ceftriaxona",
+                    "Vancomicina","Metronidazol","Morfina","Codeína","Sulfonamidas","AINEs",
+                    "Contraste yodado","Látex","Maní / Cacahuete","Mariscos",
+                    "Leche de vaca","Huevo","Gluten / Trigo"] %}
+                  {% for s in sust_list %}
+                  <option value="{{ s }}"
+                    {% if a.sustancia == s %}selected{% endif %}>{{ s }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <select name="exist_alergia_manifestacion[]" class="form-input form-select form-input-sm">
+                  {% set manif_list = ["Urticaria","Anafilaxia","Angioedema","Broncoespasmo",
+                    "Hipotensión","Exantema / Rash","Prurito","Náuseas y vómitos","Diarrea",
+                    "Rinitis alérgica","Eritema","Edema laríngeo","Conjuntivitis alérgica"] %}
+                  {% for m in manif_list %}
+                  <option value="{{ m }}"
+                    {% if a.manifestacion == m %}selected{% endif %}>{{ m }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <select name="exist_alergia_criticidad[]" class="form-input form-select form-input-sm">
+                  {% for op in ["Alta","Baja","Sin determinar"] %}
+                  <option value="{{ op }}"
+                    {% if a.criticidad == op %}selected{% endif %}>{{ op }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <select name="exist_alergia_tipo[]" class="form-input form-select form-input-sm">
+                  {% for op in ["Alergia","Intolerancia"] %}
+                  <option value="{{ op }}"
+                    {% if a.tipo == op %}selected{% endif %}>{{ op }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <select name="exist_alergia_estado[]" class="form-input form-select form-input-sm">
+                  {% for op in ["Activa","Inactiva","Resuelta"] %}
+                  <option value="{{ op }}"
+                    {% if a.estado == op %}selected{% endif %}>{{ op }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      <div class="nueva-seccion">
+        <p class="nueva-label">Agregar nueva alergia</p>
+        <div id="mod-new-alergias">
+          <div class="repeatable-row">
+            <div class="form-grid col-3">
+              <div class="form-group"><label class="form-label">Sustancia</label>
+                <select name="new_alergia_sustancia[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Penicilina</option><option>Amoxicilina</option><option>Aspirina</option>
+                  <option>Ibuprofeno</option><option>Ceftriaxona</option><option>Vancomicina</option>
+                  <option>Metronidazol</option><option>Morfina</option><option>Codeína</option>
+                  <option>Sulfonamidas</option><option>AINEs</option><option>Contraste yodado</option>
+                  <option>Látex</option><option>Maní / Cacahuete</option><option>Mariscos</option>
+                  <option>Leche de vaca</option><option>Huevo</option><option>Gluten / Trigo</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Manifestación</label>
+                <select name="new_alergia_manifestacion[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Urticaria</option><option>Anafilaxia</option><option>Angioedema</option>
+                  <option>Broncoespasmo</option><option>Hipotensión</option><option>Exantema / Rash</option>
+                  <option>Prurito</option><option>Náuseas y vómitos</option><option>Diarrea</option>
+                  <option>Rinitis alérgica</option><option>Eritema</option><option>Edema laríngeo</option>
+                  <option>Conjuntivitis alérgica</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Criticidad</label>
+                <select name="new_alergia_criticidad[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Alta</option><option>Baja</option><option>Sin determinar</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Tipo</label>
+                <select name="new_alergia_tipo[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Alergia</option><option>Intolerancia</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Estado</label>
+                <select name="new_alergia_estado[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Activa</option><option>Inactiva</option><option>Resuelta</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Fecha</label>
+                <input type="date" name="new_alergia_fecha[]" class="form-input"></div>
+            </div>
+            <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add-row"
+                onclick="agregarFila('mod-new-alergias','tpl-mod-new-alergia')">+ Agregar otra</button>
+      </div>
+    </div>
+
+    <!-- ══ MEDICAMENTOS ══════════════════════════════════════ -->
+    <div class="ficha-section">
+      <div class="ficha-section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M10.5 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v3"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18 14v4M16 16h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Tratamientos — Medicamentos</h3>
+        <span class="section-count">{{ ficha.medicamentos | length }}</span>
+      </div>
+
+      <!-- Cards por medicamento (muchos campos → no tabla) -->
+      {% if ficha.medicamentos %}
+      <div style="padding: 1rem 1.25rem; display:flex; flex-direction:column; gap:0.65rem;">
+        {% for m in ficha.medicamentos %}
+        <div class="med-card">
+          <input type="hidden" name="exist_med_id[]" value="{{ m.fhir_id }}">
+          <div class="med-card-header">
+            <span class="med-card-nombre">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px">
+                <rect x="3" y="3" width="18" height="18" rx="3" stroke="#6b7280" stroke-width="1.5"/>
+                <path d="M8 12h8M12 8v8" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              Medicamento actual: <strong>{{ m.nombre }}</strong>
+            </span>
+          </div>
+          <div class="form-grid col-3" style="gap:0.65rem;">
+            <div class="form-group">
+              <label class="form-label">Nombre</label>
+              <select name="exist_med_nombre[]" class="form-input form-select form-input-sm">
+                {% set med_list = ["Paracetamol","Morfina","Tramadol","Ibuprofeno","Aspirina",
+                  "Metformina","Insulina","Heparina","Warfarina","Atorvastatina","Omeprazol",
+                  "Furosemida","Enalapril","Metoprolol","Ceftriaxona","Vancomicina",
+                  "Amoxicilina","Metronidazol","Salbutamol","Dexametasona","Ondansetrón","Ciprofloxacino"] %}
+                {% for med in med_list %}
+                <option value="{{ med }}"
+                  {% if m.nombre == med %}selected{% endif %}>{{ med }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dosis (valor)</label>
+              <input type="number" name="exist_med_dosis_val[]"
+                     value="{{ m.dosis_val }}" class="form-input form-input-sm" step="any">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Unidad dosis</label>
+              <select name="exist_med_dosis_unit[]" class="form-input form-select form-input-sm">
+                {% for u in ["mg","g","mcg","ml","UI"] %}
+                <option value="{{ u }}"
+                  {% if m.dosis_unit == u %}selected{% endif %}>{{ u }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Frecuencia (cada)</label>
+              <input type="number" name="exist_med_periodo[]"
+                     value="{{ m.periodo }}" class="form-input form-input-sm">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Unidad frecuencia</label>
+              <select name="exist_med_periodo_unit[]" class="form-input form-select form-input-sm">
+                {% for u,l in [("h","Horas"),("d","Días"),("wk","Semanas"),("mo","Meses")] %}
+                <option value="{{ u }}"
+                  {% if m.periodo_unit == u %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vía</label>
+              <select name="exist_med_via[]" class="form-input form-select form-input-sm">
+                {% for op in ["Oral","Intravenosa","Intramuscular","Subcutánea","Tópica","Inhalatoria","Sublingual","Rectal"] %}
+                <option value="{{ op }}"
+                  {% if op.lower() in m.via|lower %}selected{% endif %}>{{ op }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estado</label>
+              <select name="exist_med_estado[]" class="form-input form-select form-input-sm">
+                {% for op in ["Activo","Suspendido","Finalizado","Cancelado"] %}
+                <option value="{{ op }}"
+                  {% if m.estado == op %}selected{% endif %}>{{ op }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Fecha inicio</label>
+              <input type="date" name="exist_med_fecha[]"
+                     value="{{ m.fecha if m.fecha != '(no disponible)' else '' }}"
+                     class="form-input form-input-sm">
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="nueva-seccion">
+        <p class="nueva-label">Agregar nuevo medicamento</p>
+        <div id="mod-new-medicamentos">
+          <div class="repeatable-row">
+            <div class="form-grid col-3">
+              <div class="form-group"><label class="form-label">Medicamento</label>
+                <select name="new_med_nombre[]" class="form-input form-select" onchange="autocompletarMed(this)">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Paracetamol</option><option>Morfina</option><option>Tramadol</option>
+                  <option>Ibuprofeno</option><option>Aspirina</option><option>Metformina</option>
+                  <option>Insulina</option><option>Heparina</option><option>Warfarina</option>
+                  <option>Atorvastatina</option><option>Omeprazol</option><option>Furosemida</option>
+                  <option>Enalapril</option><option>Metoprolol</option><option>Ceftriaxona</option>
+                  <option>Vancomicina</option><option>Amoxicilina</option><option>Metronidazol</option>
+                  <option>Salbutamol</option><option>Dexametasona</option>
+                  <option>Ondansetrón</option><option>Ciprofloxacino</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Dosis (valor)</label>
+                <input type="number" name="new_med_dosis_val[]" class="form-input" step="any"></div>
+              <div class="form-group"><label class="form-label">Unidad dosis</label>
+                <select name="new_med_dosis_unit[]" class="form-input form-select">
+                  <option value="mg" selected>mg</option><option value="g">g</option>
+                  <option value="mcg">mcg</option><option value="ml">ml</option><option value="UI">UI</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Frecuencia (cada)</label>
+                <input type="number" name="new_med_periodo[]" class="form-input"></div>
+              <div class="form-group"><label class="form-label">Unidad frecuencia</label>
+                <select name="new_med_periodo_unit[]" class="form-input form-select">
+                  <option value="h" selected>Horas</option><option value="d">Días</option>
+                  <option value="wk">Semanas</option><option value="mo">Meses</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Vía</label>
+                <select name="new_med_via[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Oral</option><option>Intravenosa</option><option>Intramuscular</option>
+                  <option>Subcutánea</option><option>Tópica</option><option>Inhalatoria</option>
+                  <option>Sublingual</option><option>Rectal</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Estado</label>
+                <select name="new_med_estado[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Activo</option><option>Suspendido</option><option>Finalizado</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Fecha inicio</label>
+                <input type="date" name="new_med_fecha[]" class="form-input"></div>
+            </div>
+            <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add-row"
+                onclick="agregarFila('mod-new-medicamentos','tpl-mod-new-med')">+ Agregar otro</button>
+      </div>
+    </div>
+
+    <!-- ══ INTERVENCIONES ════════════════════════════════════ -->
+    <div class="ficha-section">
+      <div class="ficha-section-header">
+        <div class="section-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M4.5 16.5l10-10M14.5 6.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="section-title">Tratamientos — Intervenciones</h3>
+        <span class="section-count">{{ ficha.tratamientos | length }}</span>
+      </div>
+
+      {% if ficha.tratamientos %}
+      <div class="table-scroll">
+        <table class="ficha-tabla">
+          <thead>
+            <tr>
+              <th>Tratamiento</th>
+              <th style="width:140px">Tipo</th>
+              <th style="width:140px">Estado</th>
+              <th style="width:135px">Inicio</th>
+              <th style="width:135px">Fin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in ficha.tratamientos %}
+            <tr>
+              <td>
+                <input type="hidden" name="exist_interv_id[]" value="{{ t.fhir_id }}">
+                <select name="exist_interv_nombre[]" class="form-input form-select form-input-sm">
+                  {% set trat_list = ["Oxigenoterapia suplementaria","Ventilación mecánica invasiva",
+                    "Hemodiálisis","Diálisis peritoneal","Fisioterapia respiratoria",
+                    "Rehabilitación cardíaca","Rehabilitación neurológica",
+                    "Fisioterapia musculoesquelética","Terapia nutricional","Terapia ocupacional",
+                    "Fonoaudiología","Manejo del dolor","Cuidado de heridas",
+                    "Soporte psicológico","Rehabilitación post-quirúrgica"] %}
+                  {% for tr in trat_list %}
+                  <option value="{{ tr }}"
+                    {% if t.nombre == tr %}selected{% endif %}>{{ tr }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+
+              <td>
+                <select name="exist_interv_tipo[]" class="form-input form-select form-input-sm">
+                  {% for op in ["Nutricional","Rehabilitación","Quirúrgico","Psicológico","Kinesiológico","Educativo","Otro"] %}
+                  <option value="{{ op }}" {% if t.tipo == op %}selected{% endif %}>{{ op }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+
+
+              <td>
+                <select name="exist_interv_estado[]" class="form-input form-select form-input-sm">
+                  {% for op in ["Activo","Finalizado","Suspendido","Cancelado"] %}
+                  <option value="{{ op }}"
+                    {% if t.estado == op %}selected{% endif %}>{{ op }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <input type="date" name="exist_interv_inicio[]"
+                       value="{{ t.inicio if t.inicio != '(no disponible)' else '' }}"
+                       class="form-input form-input-sm">
+              </td>
+              <td>
+                <input type="date" name="exist_interv_fin[]"
+                       value="{{ t.fin }}"
+                       class="form-input form-input-sm">
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      <div class="nueva-seccion">
+        <p class="nueva-label">Agregar nueva intervención</p>
+        <div id="mod-new-intervenciones">
+          <div class="repeatable-row">
+            <div class="form-grid col-3">
+              <div class="form-group"><label class="form-label">Tratamiento</label>
+                <select name="new_interv_nombre[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Oxigenoterapia suplementaria</option><option>Ventilación mecánica invasiva</option>
+                  <option>Hemodiálisis</option><option>Diálisis peritoneal</option>
+                  <option>Fisioterapia respiratoria</option><option>Rehabilitación cardíaca</option>
+                  <option>Rehabilitación neurológica</option><option>Fisioterapia musculoesquelética</option>
+                  <option>Terapia nutricional</option><option>Terapia ocupacional</option>
+                  <option>Fonoaudiología</option><option>Manejo del dolor</option>
+                  <option>Cuidado de heridas</option><option>Soporte psicológico</option>
+                  <option>Rehabilitación post-quirúrgica</option>
+                </select></div>
+
+
+              <div class="form-group"><label class="form-label">Tipo</label>
+                <select name="new_interv_tipo[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Nutricional</option><option>Rehabilitación</option><option>Quirúrgico</option>
+                  <option>Psicológico</option><option>Kinesiológico</option>
+                  <option>Educativo</option><option>Otro</option>
+                </select></div>
+
+
+              <div class="form-group"><label class="form-label">Estado</label>
+                <select name="new_interv_estado[]" class="form-input form-select">
+                  <option value="" disabled selected>Seleccionar</option>
+                  <option>Activo</option><option>Finalizado</option>
+                  <option>Suspendido</option><option>Cancelado</option>
+                </select></div>
+              <div class="form-group"><label class="form-label">Fecha inicio</label>
+                <input type="date" name="new_interv_inicio[]" class="form-input"></div>
+              <div class="form-group"><label class="form-label">Fecha fin (opcional)</label>
+                <input type="date" name="new_interv_fin[]" class="form-input"></div>
+            </div>
+            <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add-row"
+                onclick="agregarFila('mod-new-intervenciones','tpl-mod-new-interv')">+ Agregar otra</button>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <a href="{{ url_for('ficha_paciente', patient_id=ficha.paciente.fhir_id) }}"
+         class="btn-secondary">Cancelar</a>
+      <button type="submit" class="btn-primary">Guardar cambios</button>
+    </div>
+
+  </form>
+</div>
+
+<!-- ── Templates para filas dinámicas ────────────────────── -->
+<template id="tpl-mod-new-cond">
+  <div class="repeatable-row">
+    <div class="form-grid col-4">
+      <div class="form-group"><label class="form-label">Diagnóstico</label>
+        <select name="new_cond_diagnostico[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Neumonía grave</option><option>Infarto agudo al miocardio</option>
+          <option>Accidente cerebrovascular (ACV)</option><option>Insuficiencia cardíaca descompensada</option>
+          <option>Sepsis</option><option>Insuficiencia respiratoria aguda</option>
+          <option>Diabetes mellitus descompensada</option><option>Cetoacidosis diabética</option>
+          <option>Enfermedad renal crónica avanzada</option><option>Apendicitis aguda</option>
+          <option>Pancreatitis aguda</option><option>Trauma craneoencefálico</option>
+          <option>Fractura de cadera</option><option>COVID-19 grave</option>
+          <option>Hemorragia digestiva alta</option><option>Embolia pulmonar</option>
+          <option>Shock séptico</option><option>Meningitis bacteriana</option>
+          <option>Insuficiencia hepática aguda</option>
+          <option>Síndrome de dificultad respiratoria aguda</option>
+        </select></div>
+
+      <div class="form-group"><label class="form-label">Certeza</label>
+        <select name="new_cond_certeza[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Confirmado</option><option>Presuntivo</option><option>Diferencial</option>
+          <option>Sin confirmar</option><option>Descartado</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Estado</label>
+        <select name="new_cond_estado[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Activa</option><option>Resuelta</option>
+          <option>En remisión</option><option>Inactiva</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Fecha</label>
+        <input type="date" name="new_cond_fecha[]" class="form-input"></div>
+    </div>
+    <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+  </div>
+</template>
+
+<template id="tpl-mod-new-alergia">
+  <div class="repeatable-row">
+    <div class="form-grid col-3">
+      <div class="form-group"><label class="form-label">Sustancia</label>
+        <select name="new_alergia_sustancia[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Penicilina</option><option>Amoxicilina</option><option>Aspirina</option>
+          <option>Ibuprofeno</option><option>Ceftriaxona</option><option>Vancomicina</option>
+          <option>Metronidazol</option><option>Morfina</option><option>Codeína</option>
+          <option>Sulfonamidas</option><option>AINEs</option><option>Contraste yodado</option>
+          <option>Látex</option><option>Maní / Cacahuete</option><option>Mariscos</option>
+          <option>Leche de vaca</option><option>Huevo</option><option>Gluten / Trigo</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Manifestación</label>
+        <select name="new_alergia_manifestacion[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Urticaria</option><option>Anafilaxia</option><option>Angioedema</option>
+          <option>Broncoespasmo</option><option>Hipotensión</option><option>Exantema / Rash</option>
+          <option>Prurito</option><option>Náuseas y vómitos</option><option>Diarrea</option>
+          <option>Rinitis alérgica</option><option>Eritema</option><option>Edema laríngeo</option>
+          <option>Conjuntivitis alérgica</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Criticidad</label>
+        <select name="new_alergia_criticidad[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Alta</option><option>Baja</option><option>Sin determinar</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Tipo</label>
+        <select name="new_alergia_tipo[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Alergia</option><option>Intolerancia</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Estado</label>
+        <select name="new_alergia_estado[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Activa</option><option>Inactiva</option><option>Resuelta</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Fecha</label>
+        <input type="date" name="new_alergia_fecha[]" class="form-input"></div>
+    </div>
+    <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+  </div>
+</template>
+
+<template id="tpl-mod-new-med">
+  <div class="repeatable-row">
+    <div class="form-grid col-3">
+      <div class="form-group"><label class="form-label">Medicamento</label>
+        <select name="new_med_nombre[]" class="form-input form-select" onchange="autocompletarMed(this)">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Paracetamol</option><option>Morfina</option><option>Tramadol</option>
+          <option>Ibuprofeno</option><option>Aspirina</option><option>Metformina</option>
+          <option>Insulina</option><option>Heparina</option><option>Warfarina</option>
+          <option>Atorvastatina</option><option>Omeprazol</option><option>Furosemida</option>
+          <option>Enalapril</option><option>Metoprolol</option><option>Ceftriaxona</option>
+          <option>Vancomicina</option><option>Amoxicilina</option><option>Metronidazol</option>
+          <option>Salbutamol</option><option>Dexametasona</option>
+          <option>Ondansetrón</option><option>Ciprofloxacino</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Dosis (valor)</label>
+        <input type="number" name="new_med_dosis_val[]" class="form-input" step="any"></div>
+      <div class="form-group"><label class="form-label">Unidad dosis</label>
+        <select name="new_med_dosis_unit[]" class="form-input form-select">
+          <option value="mg" selected>mg</option><option value="g">g</option>
+          <option value="mcg">mcg</option><option value="ml">ml</option><option value="UI">UI</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Frecuencia (cada)</label>
+        <input type="number" name="new_med_periodo[]" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Unidad frecuencia</label>
+        <select name="new_med_periodo_unit[]" class="form-input form-select">
+          <option value="h" selected>Horas</option><option value="d">Días</option>
+          <option value="wk">Semanas</option><option value="mo">Meses</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Vía</label>
+        <select name="new_med_via[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Oral</option><option>Intravenosa</option><option>Intramuscular</option>
+          <option>Subcutánea</option><option>Tópica</option><option>Inhalatoria</option>
+          <option>Sublingual</option><option>Rectal</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Estado</label>
+        <select name="new_med_estado[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Activo</option><option>Suspendido</option><option>Finalizado</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Fecha inicio</label>
+        <input type="date" name="new_med_fecha[]" class="form-input"></div>
+    </div>
+    <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+  </div>
+</template>
+
+<template id="tpl-mod-new-interv">
+  <div class="repeatable-row">
+    <div class="form-grid col-2">
+      <div class="form-group"><label class="form-label">Tratamiento</label>
+        <select name="new_interv_nombre[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Oxigenoterapia suplementaria</option><option>Ventilación mecánica invasiva</option>
+          <option>Hemodiálisis</option><option>Diálisis peritoneal</option>
+          <option>Fisioterapia respiratoria</option><option>Rehabilitación cardíaca</option>
+          <option>Rehabilitación neurológica</option><option>Fisioterapia musculoesquelética</option>
+          <option>Terapia nutricional</option><option>Terapia ocupacional</option>
+          <option>Fonoaudiología</option><option>Manejo del dolor</option>
+          <option>Cuidado de heridas</option><option>Soporte psicológico</option>
+          <option>Rehabilitación post-quirúrgica</option>
+        </select></div>
+
+      <div class="form-group"><label class="form-label">Tipo</label>
+        <select name="new_interv_tipo[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option value="Nutricional">Nutricional</option>
+          <option value="Rehabilitación">Rehabilitación</option>
+          <option value="Quirúrgico">Quirúrgico</option>
+          <option value="Psicológico">Psicológico</option>
+          <option value="Kinesiológico">Kinesiológico</option>
+          <option value="Educativo">Educativo</option>
+          <option value="Otro">Otro</option>
+        </select></div>
+
+
+
+      <div class="form-group"><label class="form-label">Estado</label>
+        <select name="new_interv_estado[]" class="form-input form-select">
+          <option value="" disabled selected>Seleccionar</option>
+          <option>Activo</option><option>Finalizado</option>
+          <option>Suspendido</option><option>Cancelado</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Fecha inicio</label>
+        <input type="date" name="new_interv_inicio[]" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Fecha fin (opcional)</label>
+        <input type="date" name="new_interv_fin[]" class="form-input"></div>
+    </div>
+    <button type="button" class="btn-remove" onclick="eliminarFila(this)">✕</button>
+  </div>
+</template>
+
+<script>
+const MED_DATOS = {
+  "Paracetamol":{dv:"500",du:"mg",per:"6",pu:"h",via:"Oral"},
+  "Morfina":{dv:"10",du:"mg",per:"4",pu:"h",via:"Intravenosa"},
+  "Tramadol":{dv:"50",du:"mg",per:"8",pu:"h",via:"Oral"},
+  "Ibuprofeno":{dv:"400",du:"mg",per:"8",pu:"h",via:"Oral"},
+  "Aspirina":{dv:"100",du:"mg",per:"24",pu:"h",via:"Oral"},
+  "Metformina":{dv:"850",du:"mg",per:"12",pu:"h",via:"Oral"},
+  "Insulina":{dv:"10",du:"UI",per:"24",pu:"h",via:"Subcutánea"},
+  "Heparina":{dv:"5000",du:"UI",per:"8",pu:"h",via:"Subcutánea"},
+  "Warfarina":{dv:"5",du:"mg",per:"24",pu:"h",via:"Oral"},
+  "Atorvastatina":{dv:"40",du:"mg",per:"24",pu:"h",via:"Oral"},
+  "Omeprazol":{dv:"20",du:"mg",per:"24",pu:"h",via:"Oral"},
+  "Furosemida":{dv:"40",du:"mg",per:"24",pu:"h",via:"Oral"},
+  "Enalapril":{dv:"10",du:"mg",per:"12",pu:"h",via:"Oral"},
+  "Metoprolol":{dv:"50",du:"mg",per:"12",pu:"h",via:"Oral"},
+  "Ceftriaxona":{dv:"1",du:"g",per:"24",pu:"h",via:"Intravenosa"},
+  "Vancomicina":{dv:"1",du:"g",per:"12",pu:"h",via:"Intravenosa"},
+  "Amoxicilina":{dv:"500",du:"mg",per:"8",pu:"h",via:"Oral"},
+  "Metronidazol":{dv:"500",du:"mg",per:"8",pu:"h",via:"Intravenosa"},
+  "Salbutamol":{dv:"2.5",du:"mg",per:"6",pu:"h",via:"Inhalatoria"},
+  "Dexametasona":{dv:"8",du:"mg",per:"8",pu:"h",via:"Intravenosa"},
+  "Ondansetrón":{dv:"8",du:"mg",per:"8",pu:"h",via:"Intravenosa"},
+  "Ciprofloxacino":{dv:"500",du:"mg",per:"12",pu:"h",via:"Oral"},
+};
+
+function autocompletarMed(select) {
+  const fila = select.closest(".repeatable-row");
+  const d = MED_DATOS[select.value];
+  if (!d) return;
+  fila.querySelector("[name='new_med_dosis_val[]']").value    = d.dv;
+  fila.querySelector("[name='new_med_dosis_unit[]']").value   = d.du;
+  fila.querySelector("[name='new_med_periodo[]']").value      = d.per;
+  fila.querySelector("[name='new_med_periodo_unit[]']").value = d.pu;
+  fila.querySelector("[name='new_med_via[]']").value          = d.via;
+}
+
+function agregarFila(contenedorId, tplId) {
+  document.getElementById(contenedorId)
+    .appendChild(document.getElementById(tplId).content.cloneNode(true));
+}
+
+function eliminarFila(btn) {
+  const fila  = btn.closest(".repeatable-row");
+  const lista = fila.parentElement;
+  if (lista.querySelectorAll(".repeatable-row").length > 1) fila.remove();
+}
+</script>
+{% endblock %}

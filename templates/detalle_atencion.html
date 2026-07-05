@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% block title %}Detalle atención — {{ nombre_paciente }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Encabezado -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a href="{{ url_for('pacientes') }}">Pacientes</a>
+        <span>/</span>
+        <a href="{{ url_for('ficha_paciente', patient_id=patient_id) }}">{{ nombre_paciente }}</a>
+        <span>/</span>
+        <a href="{{ url_for('historial_route', patient_id=patient_id) }}">Historial</a>
+        <span>/</span>
+        <span>Detalle</span>
+      </div>
+      <h2 class="page-title">Detalle de atención</h2>
+      <p class="page-subtitle">{{ detalle.titulo }}</p>
+    </div>
+    <a href="{{ url_for('historial_route', patient_id=patient_id) }}" class="btn-secondary">
+      ← Volver al historial
+    </a>
+  </div>
+
+  <!-- Tarjeta resumen del encuentro -->
+  <div class="fp-card">
+    <div class="fp-patient-header" style="flex-wrap:wrap;gap:2rem;">
+      <div class="fp-data-item" style="flex:none;">
+        <div class="fp-data-icon" style="background:#eaf3de;color:#3b6d11;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <span class="fp-data-label">Estudiante</span>
+          <span class="fp-data-value">{{ detalle.estudiante }}</span>
+        </div>
+      </div>
+      <div class="fp-data-item" style="flex:none;">
+        <div class="fp-data-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <span class="fp-data-label">Inicio</span>
+          <span class="fp-data-value mono">{{ detalle.inicio }}</span>
+        </div>
+      </div>
+      <div class="fp-data-item" style="flex:none;">
+        <div class="fp-data-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M17 17l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <span class="fp-data-label">Fin</span>
+          <span class="fp-data-value mono">{{ detalle.fin }}</span>
+        </div>
+      </div>
+      <div class="fp-data-item" style="flex:none;">
+        <div class="fp-data-icon" style="background:#eaf3de;color:#3b6d11;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="fp-data-label">Estado</span>
+          <span class="fp-data-value">
+            <span class="badge-inline badge-inline-green">Finalizada</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secciones del documento clínico -->
+
+  {% for titulo, items in detalle.sections.items() %}
+  <div class="fp-section-card">
+    <div class="fp-section-header">
+
+      {% if titulo == 'Condiciones médicas' %}
+      <div class="fp-section-icon fp-icon-green">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </div>
+      {% elif titulo == 'Alergias' %}
+      <div class="fp-section-icon fp-icon-red">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      {% elif titulo == 'Medicamentos' %}
+      <div class="fp-section-icon fp-icon-blue">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M10.5 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18 14v4M16 16h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      {% elif titulo == 'Tratamientos' %}
+      <div class="fp-section-icon fp-icon-purple">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M4.5 16.5l10-10M14.5 6.5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      {% elif 'PHANTOM' in titulo %}
+      <div class="fp-section-icon fp-icon-blue">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      {% else %}
+      <div class="fp-section-icon" style="background:#f0ebfc;color:#6b1a9a;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      {% endif %}
+
+      <span class="fp-section-title">{{ titulo }}</span>
+      <span class="section-count">{{ items|length }}</span>
+    </div>
+
+    {% if items %}
+
+      <!-- Condiciones -->
+      {% if items[0].tipo == 'condition' %}
+      <div class="table-scroll">
+        <table class="ficha-mini-table">
+          <thead><tr><th>Diagnóstico</th><th>Certeza</th><th>Estado</th><th>Fecha</th></tr></thead>
+          <tbody>
+          {% for c in items %}
+          <tr>
+            <td class="td-primary">{{ c.diagnostico }}</td>
+            <td><span class="badge-inline {% if c.certeza == 'Confirmado' %}badge-inline-green{% elif c.certeza == 'Descartado' %}badge-inline-red{% else %}badge-inline-yellow{% endif %}">{{ c.certeza }}</span></td>
+            <td><span class="badge-inline {{ 'badge-inline-green' if 'Activ' in c.estado else 'badge-inline-gray' }}">{{ c.estado }}</span></td>
+            <td class="td-fecha">{{ c.fecha[:10] if c.fecha else '—' }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Alergias -->
+      {% elif items[0].tipo == 'allergy' %}
+      <div class="table-scroll">
+        <table class="ficha-mini-table">
+          <thead><tr><th>Sustancia</th><th>Manifestación</th><th>Criticidad</th><th>Tipo</th></tr></thead>
+          <tbody>
+          {% for a in items %}
+          <tr>
+            <td class="td-primary">{{ a.sustancia }}</td>
+            <td>{{ a.manif }}</td>
+            <td><span class="badge-inline {% if a.criticidad == 'Alta' %}badge-inline-red{% elif a.criticidad == 'Baja' %}badge-inline-yellow{% else %}badge-inline-gray{% endif %}">{{ a.criticidad }}</span></td>
+            <td>{{ a.tipo_al }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Medicamentos -->
+      {% elif items[0].tipo == 'medication' %}
+      <div class="table-scroll">
+        <table class="ficha-mini-table">
+          <thead><tr><th>Nombre</th><th>Dosis</th><th>Vía</th><th>Estado</th><th>Fecha</th></tr></thead>
+          <tbody>
+          {% for m in items %}
+          <tr>
+            <td class="td-primary">{{ m.nombre }}</td>
+            <td class="mono">{{ m.dosis }}</td>
+            <td>{{ m.via }}</td>
+           <td><span class="badge-inline {{ 'badge-inline-green' if m.estado == 'Activo' else 'badge-inline-gray' }}">{{ m.estado }}</span></td>
+            <td class="td-fecha">{{ m.fecha[:10] if m.fecha else '—' }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tratamientos -->
+      {% elif items[0].tipo == 'treatment' %}
+      <div class="table-scroll">
+        <table class="ficha-mini-table">
+          <thead><tr><th>Nombre</th><th>Tipo</th><th>Estado</th><th>Inicio</th></tr></thead>
+          <tbody>
+          {% for t in items %}
+          <tr>
+            <td class="td-primary">{{ t.nombre }}</td>
+            <td>{{ t.tipo_tr }}</td>
+            <td><span class="badge-inline {% if t.estado == 'Activo' %}badge-inline-green{% elif t.estado in ['Finalizado','Cancelado'] %}badge-inline-gray{% else %}badge-inline-yellow{% endif %}">{{ t.estado }}</span></td>
+            <td class="td-fecha">{{ t.inicio[:10] if t.inicio else '—' }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Observaciones (PHANTOM u otras) -->
+      {% elif items[0].tipo == 'obs' %}
+      <div class="table-scroll">
+        <table class="ficha-mini-table">
+          <thead><tr><th>Parámetro</th><th>Valor</th><th>Fecha y hora</th></tr></thead>
+          <tbody>
+          {% for o in items %}
+          <tr>
+            <td class="td-primary">{{ o.nombre }}</td>
+            <td class="mono"><strong>{{ o.valor }}</strong></td>
+            <td class="td-fecha">{{ o.fecha }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Notas clínicas -->
+      {% elif items[0].tipo == 'nota' %}
+      <div style="padding:1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+        {% for n in items %}
+        <div style="background:var(--surface-2);border:1px solid var(--border);
+                    border-radius:var(--radius-md);padding:1rem;">
+          <p style="font-size:13px;color:var(--text-primary);line-height:1.6;margin:0;">
+            {{ n.texto }}
+          </p>
+          <p style="font-size:11px;color:var(--text-tertiary);margin:0.5rem 0 0;font-family:var(--font-mono);">
+            {{ n.fecha }}
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% endif %}
+
+    {% else %}
+    <p class="ficha-mini-empty">Sin registros en esta sección</p>
+    {% endif %}
+
+  </div>
+  {% endfor %}
+  {% if detalle.obs_phantom_dashboard %}
+  <div class="ficha-obs-card">
+
+    <div class="ficha-obs-header">
+      <div class="section-icon fp-icon-blue" style="background:#e8f4fd;color:#1a6b9a;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 class="section-title">Observaciones PHANTOM durante la atención</h3>
+    </div>
+
+    <div class="obs-top-bar">
+      <div class="obs-selector-group">
+        <label class="obs-param-label" for="det-param-select">Parámetro:</label>
+        <select id="det-param-select" class="obs-param-select">
+          <option value="" disabled selected>Seleccionar</option>
+          {% for tipo in detalle.obs_phantom_dashboard.keys() %}
+          <option value="{{ tipo }}">{{ tipo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="obs-stats-horiz">
+        <div class="obs-stat-chip">
+          <div class="obs-stat-chip-icon up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M7 17l10-10M17 7H7M17 7v10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="obs-stat-chip-label">Max</span>
+          <span class="obs-stat-chip-value" id="det-stat-max">--</span>
+          <span class="obs-stat-chip-unit"  id="det-unit-max"></span>
+        </div>
+        <div class="obs-stat-chip">
+          <div class="obs-stat-chip-icon down"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 17H7M17 17V7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="obs-stat-chip-label">Min</span>
+          <span class="obs-stat-chip-value" id="det-stat-min">--</span>
+          <span class="obs-stat-chip-unit"  id="det-unit-min"></span>
+        </div>
+        <div class="obs-stat-chip">
+          <div class="obs-stat-chip-icon info"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          <span class="obs-stat-chip-label">Total</span>
+          <span class="obs-stat-chip-value" id="det-stat-count">--</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="obs-body-layout" style="min-height:360px;">
+      <div class="obs-chart-col" id="det-chart-col">
+        <span class="obs-no-chart-msg" id="det-no-chart-msg">Selecciona un parámetro</span>
+        <canvas id="det-main-chart" style="display:none;"></canvas>
+      </div>
+      <div class="obs-table-col">
+        <div class="obs-table-col-header">Observaciones de la atención</div>
+        <div class="obs-table-scroll">
+          <table class="obs-simple-tabla">
+            <thead><tr><th>Fecha</th><th>Valor</th><th>Unidad</th></tr></thead>
+            <tbody id="det-tabla-body">
+              <tr><td colspan="3" style="text-align:center;padding:2rem;color:var(--text-tertiary);">Selecciona un parámetro</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script id="det-obs-data" type="application/json">{{ detalle.obs_phantom_dashboard | tojson }}</script>
+  <script>
+  (function() {
+    var OBS = JSON.parse(document.getElementById('det-obs-data').textContent);
+    var currentChart = null;
+    var COLORES = {
+      "Presión arterial":        {s:"#e24b4a",d:"#f9a8a8"},
+      "Frecuencia cardíaca":     {s:"#e24b4a"},
+      "Saturación de oxígeno":   {s:"#1a6b4a"},
+      "Temperatura corporal":    {s:"#854f0b"},
+      "Frecuencia respiratoria": {s:"#1a6b9a"},
+      "Glucosa en sangre":       {s:"#6b1a9a"},
+    };
+
+    function render(tipo) {
+      var d    = OBS[tipo];
+      var unit = d.unidad || '';
+
+      // Stats
+      var mx = d.es_presion && d.maximo2 != null ? d.maximo+'/'+d.maximo2 : (d.maximo != null ? d.maximo : '--');
+      var mn = d.es_presion && d.minimo2 != null ? d.minimo+'/'+d.minimo2 : (d.minimo != null ? d.minimo : '--');
+      document.getElementById('det-stat-max').textContent   = mx;
+      document.getElementById('det-stat-min').textContent   = mn;
+      document.getElementById('det-stat-count').textContent = d.total;
+      document.getElementById('det-unit-max').textContent   = unit ? ' '+unit : '';
+      document.getElementById('det-unit-min').textContent   = unit ? ' '+unit : '';
+
+      // Tabla
+      var body     = document.getElementById('det-tabla-body');
+      var entradas = d.entradas.slice().sort(function(a,b){ return b.fecha > a.fecha ? 1:-1; }).slice(0,30);
+      var rows = '';
+      entradas.forEach(function(e) {
+        var val   = d.es_presion && e.valor2 != null ? e.valor+'/'+e.valor2 : (e.valor != null ? e.valor : '---');
+        var fecha = e.fecha_corta || e.fecha.slice(0,16).replace('T',' ');
+        rows += '<tr><td class="td-fecha">'+fecha+'</td><td><strong>'+val+'</strong></td><td>'+unit+'</td></tr>';
+      });
+      body.innerHTML = rows || '<tr><td colspan="3" style="text-align:center;padding:1rem;color:var(--text-tertiary)">Sin datos</td></tr>';
+
+      // Gráfico
+      var canvas = document.getElementById('det-main-chart');
+      var msg    = document.getElementById('det-no-chart-msg');
+      var col    = document.getElementById('det-chart-col');
+      if (currentChart) { currentChart.destroy(); currentChart = null; }
+      if (!d.entradas.length) { canvas.style.display='none'; msg.style.display=''; return; }
+      var cw = Math.max((col.clientWidth||500)-40, 200);
+      var ch = 300;
+      canvas.width=cw; canvas.height=ch;
+      canvas.style.width=cw+'px'; canvas.style.height=ch+'px';
+      canvas.style.display='block'; msg.style.display='none';
+      var c   = COLORES[tipo] || {s:'#1a6b4a'};
+      var pts = d.entradas.length > 20 ? 2 : 4;
+      var datasets = [{
+        label: d.es_presion ? 'Sistólica' : tipo,
+        data:  d.entradas.map(function(e){ return e.valor; }),
+        borderColor:c.s, backgroundColor:c.s+'22',
+        tension:0.35, fill:!d.es_presion, pointRadius:pts, pointHoverRadius:6, borderWidth:2
+      }];
+      if (d.es_presion && c.d) datasets.push({
+        label:'Diastólica', data:d.entradas.map(function(e){ return e.valor2; }),
+        borderColor:c.d, backgroundColor:c.d+'22',
+        tension:0.35, fill:false, pointRadius:pts, pointHoverRadius:6, borderWidth:2
+      });
+      currentChart = new Chart(canvas, {
+        type:'line',
+        data:{ labels:d.entradas.map(function(e){ return e.fecha_corta; }), datasets:datasets },
+        options:{
+          responsive:false, maintainAspectRatio:false, animation:{duration:250},
+          plugins:{
+            legend:{display:!!d.es_presion, position:'top'},
+            tooltip:{mode:'index', intersect:false, callbacks:{label:function(ctx){ return ctx.dataset.label+': '+ctx.raw+' '+unit; }}}
+          },
+          scales:{
+            x:{grid:{display:false}, ticks:{font:{size:9}, maxTicksLimit:10, maxRotation:0}},
+            y:{grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:9}}}
+          }
+        }
+      });
+    }
+
+    var sel = document.getElementById('det-param-select');
+    if (sel) sel.addEventListener('change', function(){ if(sel.value) render(sel.value); });
+  })();
+  </script>
+  {% endif %}
+  <div>
+    <a href="{{ url_for('historial_route', patient_id=patient_id) }}" class="btn-secondary">
+      ← Volver al historial
+    </a>
+  </div>
+
+</div>
+{% endblock %}
