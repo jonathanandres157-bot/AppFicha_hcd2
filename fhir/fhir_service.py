@@ -30,7 +30,7 @@ from fhir_mappings import (
     construir_extension_sexo,
     construir_extension_genero,
     construir_extension_nacionalidad,
-    construir_identifier_rut,
+    construir_identifier_documento,
     SEXO_A_GENDER_FHIR,
     ESTADO_MEDICAMENTO,
     ESTADO_TRATAMIENTO,
@@ -141,7 +141,6 @@ def _normalizar_datetime(fecha):
         return f"{fecha_parte}T{hora_parte}"
     if hora_parte.count(":") == 1:
         hora_parte += ":00"
-    # Offset dinámico de Chile (maneja horario de verano e invierno)
     tz_raw = _dt.now(_TZ_CHILE).strftime("%z")          
     tz_str = f"{tz_raw[:3]}:{tz_raw[3:]}"               
     return f"{fecha_parte}T{hora_parte}{tz_str}"
@@ -175,11 +174,11 @@ def _cod(obj):
 
 #horario
 def _ahora_chile():
-    """Timestamp actual en hora de Chile con offset correcto (maneja DST automáticamente)."""
+    """Timestamp actual en hora de Chile con offset correcto"""
     return _dt.now(_TZ_CHILE).isoformat(timespec='seconds')
 
 def _fecha_corta(fecha_iso):
-    """Convierte un timestamp ISO 8601 (cualquier zona) a hora de Chile legible."""
+    """Convierte un timestamp ISO 8601 (cualquier zona) a hora de Chile legible"""
     try:
         dt = _dt.fromisoformat(fecha_iso.replace("Z", "+00:00"))
         return dt.astimezone(_TZ_CHILE).strftime("%d/%m %H:%M")
@@ -187,7 +186,7 @@ def _fecha_corta(fecha_iso):
         return fecha_iso[:10] if fecha_iso else "—"
 
 def _parse_iso(s):
-    """Convierte ISO 8601 con cualquier timezone a datetime aware para comparar correctamente."""
+    """Convierte ISO 8601 con cualquier timezone a datetime aware para comparar correctamente"""
     if not s:
         return None
     try:
@@ -195,7 +194,7 @@ def _parse_iso(s):
     except Exception:
         return None
 
-# ── Traducciones FHIR → Español (nivel módulo) ──────────────────────
+# ── Traducciones FHIR → Español  ──────────────────────
 _CERT_ES  = {"confirmed":"Confirmado","provisional":"Presuntivo",
              "differential":"Diferencial","unconfirmed":"Sin confirmar","refuted":"Descartado"}
 _EST_C_ES = {"active":"Activa","resolved":"Resuelta","remission":"En remisión",
@@ -241,8 +240,6 @@ def crear_paciente_completo(form):
     recurso_paciente = construir_paciente_fhir(datos_paciente)
     nombre_completo  = f"{datos_paciente['nombre']} {datos_paciente['apellido']}".strip()
 
-    # UUID temporal para referencias internas del bundle.
-    # El servidor resuelve estas referencias y asigna IDs reales al procesar.
     patient_uuid = f"urn:uuid:{_uuid.uuid4()}"
     subject_ref  = {"reference": patient_uuid}
 
@@ -469,7 +466,7 @@ def crear_paciente_completo(form):
             recurso = construir_observation(
                 tipo_usuario = tipo,
                 valor        = float(val),
-                subject_url  = patient_uuid,   # ← UUID temporal, no Patient/ID
+                subject_url  = patient_uuid,   
                 fecha_hora   = fecha,
                 valor2       = float(val2) if val2 else None,
             )
@@ -481,7 +478,6 @@ def crear_paciente_completo(form):
         except Exception as e:
             print(f"[FHIR] ERROR preparando Observation '{tipo}': {e}")
 
-    # ── Envío del Bundle transaction ────────────────────────────
     bundle = {
         "resourceType": "Bundle",
         "type":         "transaction",
@@ -493,8 +489,6 @@ def crear_paciente_completo(form):
     if not resp:
         return None, None
 
-    # El servidor devuelve las entradas en el mismo orden que el request.
-    # La primera siempre es el Patient → extraemos su ID del campo location.
     try:
         location   = resp["entry"][0]["response"]["location"]
         patient_id = location.split("/")[1]
@@ -537,10 +531,9 @@ def obtener_ficha_completa(patient_id):
         apellido = n.get("family", "")
 
     rut = "(no disponible)"
-    for ident in raw.get("identifier", []):
-        if "regcivil" in ident.get("system", "").lower() or "run" in ident.get("system", "").lower():
-            rut = ident.get("value", "(no disponible)")
-            break
+    identificadores = raw.get("identifier", [])
+    if identificadores:
+        rut = identificadores[0].get("value", "(no disponible)")
 
     sexo = genero = nacionalidad = "(no disponible)"
     pueblo_indigena = afrodescendiente = nivel_educacional = prevision = "(no disponible)"
@@ -650,7 +643,6 @@ def obtener_ficha_completa(patient_id):
     tratamientos = []
     for t in _entradas(_res["treatments"]):
         cats = t.get("category", [])
-        # tipo guardado en category[0].text 
         tipo_val = cats[0].get("text", "(no disponible)") if cats else "(no disponible)"
         tratamientos.append({
             "nombre": t.get("title") or t.get("description", "(sin nombre)"),
@@ -660,24 +652,20 @@ def obtener_ficha_completa(patient_id):
             "fin":    t.get("period", {}).get("end", ""),
         })
 
-    # ── Observaciones — agrupar por tipo y calcular estadísticas (esto me lo diste al ultimo)──
+    # ── Observaciones — 
     
-
     obs_raw = _entradas(_res["observations"])
 
-    observaciones = []   # lista simple (backward compat)
-    obs_por_tipo  = {}   # agrupado para el dashboard
+    observaciones = []   
+    obs_por_tipo  = {}   
 
     for o in obs_raw:
         tipo  = _coding_display(o.get("code", {})) or "(sin nombre)"
         fecha = o.get("effectiveDateTime") or o.get("issued", "")
 
-        # Fecha corta legible
-        
         dt_obj     = _dt.fromisoformat(fecha.replace("Z", "+00:00"))
         fecha_corta = _fecha_corta(fecha)
 
-        # Extraer valor(es)
         es_presion = False
         valor = valor2 = None
         unidad = ""
@@ -697,7 +685,7 @@ def obtener_ficha_completa(patient_id):
                 val = vq.get("value")
                 uni = vq.get("unit", "mmHg")
                 unidad = uni
-                # sistólica / diastólica por nombre del componente
+                
                 ct_low = ct.lower()
                 if any(s in ct_low for s in ["systol","sistól","sistol"]):
                     valor = val
@@ -786,11 +774,9 @@ def obtener_resumen_paciente(patient_id):
 
     # RUT
     rut = "(no disponible)"
-    for ident in raw.get("identifier", []):
-        if "regcivil" in ident.get("system", "").lower() or \
-           "run" in ident.get("system", "").lower():
-            rut = ident.get("value", "(no disponible)")
-            break
+    identificadores = raw.get("identifier", [])
+    if identificadores:
+        rut = identificadores[0].get("value", "(no disponible)")
 
     return {
         "fhir_id":  patient_id,
@@ -808,7 +794,7 @@ def listar_pacientes():
     bundle = _get(f"{BASE_URL}/Patient", params={
         "_count": 200,
         "_sort": "family",
-        "_elements": "id,name,identifier",   # solo los campos que necesitamos
+        "_elements": "id,name,identifier",   
     })
     if not bundle:
         return []
@@ -823,11 +809,9 @@ def listar_pacientes():
             apellido = n.get("family", "")
 
         rut = "(no disponible)"
-        for ident in r.get("identifier", []):
-            sys = ident.get("system", "").lower()
-            if "regcivil" in sys or "run" in sys:
-                rut = ident.get("value", "(no disponible)")
-                break
+        identificadores = r.get("identifier", [])
+        if identificadores:
+            rut = identificadores[0].get("value", "(no disponible)")
 
         pacientes.append({
             "fhir_id":  r.get("id", ""),
@@ -856,7 +840,7 @@ def _obtener_bundle_ids_paciente(patient_id):
 def _eliminar_recursos_clinicos(patient_id):
     total = 0
 
-    # 1. DocumentReference primero (referencia al Bundle y al Encounter)
+    # 1. DocumentReference 
     bundle = _get(f"{BASE_URL}/DocumentReference",
                   params={"patient": patient_id, "_count": 1000})
     for entry in (bundle.get("entry", []) if bundle else []):
@@ -866,7 +850,7 @@ def _eliminar_recursos_clinicos(patient_id):
             if ok: total += 1
             print(f"[FHIR] DELETE DocumentReference/{rid} → {'OK' if ok else 'FALLO'}")
 
-    # 2. Composition (referencia al Encounter y a los recursos clínicos)
+    # 2. Composition 
     bundle = _get(f"{BASE_URL}/Composition",
                   params={"subject": f"Patient/{patient_id}", "_count": 1000})
     for entry in (bundle.get("entry", []) if bundle else []):
@@ -876,7 +860,7 @@ def _eliminar_recursos_clinicos(patient_id):
             if ok: total += 1
             print(f"[FHIR] DELETE Composition/{rid} → {'OK' if ok else 'FALLO'}")
 
-    # 3. Recursos clínicos ANTES que el Encounter porque lo referencian
+    # 3. Recursos clínicos 
     for recurso in ["Observation", "Condition", "AllergyIntolerance",
                     "MedicationRequest", "CarePlan"]:
         bundle = _get(f"{BASE_URL}/{recurso}",
@@ -888,7 +872,7 @@ def _eliminar_recursos_clinicos(patient_id):
                 if ok: total += 1
                 print(f"[FHIR] DELETE {recurso}/{rid} → {'OK' if ok else 'FALLO'}")
 
-    # 4. Encounter al final, ahora que nada lo referencia
+    # 4. Encounter 
     bundle = _get(f"{BASE_URL}/Encounter",
                   params={"patient": patient_id, "_count": 1000})
     for entry in (bundle.get("entry", []) if bundle else []):
@@ -985,7 +969,7 @@ def modificar_ficha_completa(patient_id, form):
         cur_p["name"] = [{"use":"official","family":apellido,"given":nombre.split(),
                           "text":f"{nombre} {apellido}".strip()}]
         if fnac: cur_p["birthDate"] = fnac
-        if rut:  cur_p["identifier"] = [construir_identifier_rut(rut)]
+        if rut:  cur_p["identifier"] = [construir_identifier_documento(rut, nacion)]
 
         exts = []
         if sexo:
@@ -1290,10 +1274,9 @@ def obtener_ficha_para_edicion(patient_id):
         apellido = n.get("family", "")
 
     rut = "(no disponible)"
-    for ident in raw.get("identifier", []):
-        if "regcivil" in ident.get("system", "").lower() or "run" in ident.get("system", "").lower():
-            rut = ident.get("value", "(no disponible)")
-            break
+    identificadores = raw.get("identifier", [])
+    if identificadores:
+        rut = identificadores[0].get("value", "(no disponible)")
 
     sexo = genero = nacionalidad = "(no disponible)"
     pueblo_indigena = afrodescendiente = nivel_educacional = prevision = "(no disponible)"
@@ -1482,7 +1465,7 @@ def obtener_encuentro_activo(patient_id, encounter_id=None):
                 "estudiante":   estudiante,
             }
 
-    # Fallback: búsqueda por parámetros (para cuando no viene de una creación reciente)
+    # Fallback: búsqueda por parámetros 
     bundle = _get(f"{BASE_URL}/Encounter", params={
         "patient": patient_id,
         "status":  "in-progress",
@@ -1654,7 +1637,7 @@ def finalizar_atencion(patient_id, encounter_id, nota_texto, estudiante):
     })
     comp_id = comp_resp["id"] if comp_resp else None
 
-    # ── 4. Bundle document (snapshot inmutable) ───────────
+    # ── 4. Bundle document───────────
     entries = []
     if comp_resp:
         entries.append({"fullUrl": f"{BASE_URL}/Composition/{comp_id}",   "resource": comp_resp})
@@ -1938,7 +1921,7 @@ def obtener_detalle_atencion(bundle_id=None, composition_id=None):
                     r = index.get(entry_ref.get("reference",""))
                     if not r: continue
                     if titulo == "Observaciones PHANTOM":
-                        phantom_resources.append(r)   # acumular para dashboard
+                        phantom_resources.append(r)   
                     else:
                         items.extend(_procesar_recurso_detalle(r))
                 if titulo != "Observaciones PHANTOM" and items:
@@ -1948,7 +1931,7 @@ def obtener_detalle_atencion(bundle_id=None, composition_id=None):
                 detalle["obs_phantom_dashboard"] = _obs_to_dashboard(phantom_resources)
             return detalle
 
-    # Fallback: leer desde Composition (recursos en vivo — pueden haber cambiado)
+    # Fallback: leer desde Composition 
     if not composition_id: return None
     comp = _get(f"{BASE_URL}/Composition/{composition_id}")
     if not comp: return None
