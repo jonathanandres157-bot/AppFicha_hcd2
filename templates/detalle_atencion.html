@@ -156,7 +156,7 @@
       {% elif items[0].tipo == 'allergy' %}
       <div class="table-scroll">
         <table class="ficha-mini-table">
-          <thead><tr><th>Sustancia</th><th>Manifestación</th><th>Criticidad</th><th>Tipo</th></tr></thead>
+          <thead><tr><th>Sustancia</th><th>Manifestación</th><th>Criticidad</th><th>Tipo</th><th>Estado</th><th>Fecha</th></tr></thead>
           <tbody>
           {% for a in items %}
           <tr>
@@ -164,6 +164,8 @@
             <td>{{ a.manif }}</td>
             <td><span class="badge-inline {% if a.criticidad == 'Alta' %}badge-inline-red{% elif a.criticidad == 'Baja' %}badge-inline-yellow{% else %}badge-inline-gray{% endif %}">{{ a.criticidad }}</span></td>
             <td>{{ a.tipo_al }}</td>
+            <td><span class="badge-inline {{ 'badge-inline-green' if a.estado == 'Activa' else 'badge-inline-gray' }}">{{ a.estado }}</span></td>
+            <td class="td-fecha">{{ a.fecha[:10] if a.fecha and a.fecha != '(no disponible)' else '—' }}</td>
           </tr>
           {% endfor %}
           </tbody>
