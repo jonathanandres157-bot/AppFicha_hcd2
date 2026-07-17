@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{{% extends 'base.html' %}
 {% block title %}Crear paciente — PHANTOM HCD{% endblock %}
 
 {% block content %}
@@ -576,7 +576,6 @@
         <div id="obs-inputs-list" class="obs-inputs-lista"></div>
       </div>
     </div>
-    <!-- ══ hasta aca═══════════════════════ -->
     <!-- Botones pie -->
     <div class="form-footer">
       <a href="{{ url_for('pacientes') }}" class="btn-secondary">Cancelar</a>
@@ -651,7 +650,7 @@
 
 
 <script>
-// Unidades automáticas por tipo de observación (igual me lo diste al ultimo)
+// Unidades automáticas por tipo de observación 
 const OBS_PARAMS = {
   "Presión arterial":        { unidad:"mmHg",      esPres:true  },
   "Frecuencia cardíaca":     { unidad:"lpm",        esPres:false },
@@ -751,7 +750,7 @@ function _quitarObsInput(tipo) {
                       .querySelector(`[data-tipo="${tipo}"]`);
   if (row) row.remove();
 }
-//hasta aca
+
 
 function agregarFila(seccion) {
   const lista    = document.getElementById(seccion);
