@@ -2,15 +2,10 @@
 Tablas de mapeo entre los valores que ingresa el usuario
 y los códigos/sistemas FHIR que necesita el servidor.
 
-
 """
+# DATOS PERSONALES — Patient
 
-
-# ══════════════════════════════════════════════════════════════
-# 1. DATOS PERSONALES — Patient
-# ══════════════════════════════════════════════════════════════
-
-# ── Sexo biológico ────────────────────────────────────────────
+# Sexo biológico 
 # Fuente: https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSSexoListadoDeis
 # Extensión: https://hl7chile.cl/fhir/ig/clcore/StructureDefinition/SexoBiologico
 
@@ -24,7 +19,7 @@ SEXO_BIOLOGICO = {
 SEXO_BIOLOGICO_SYSTEM = "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSSexoListadoDeis"
 SEXO_BIOLOGICO_URL    = "https://hl7chile.cl/fhir/ig/clcore/StructureDefinition/SexoBiologico"
 
-# Mapeo al campo gender estándar de FHIR R4 (campo obligatorio)
+# Mapeo al campo gender estándar de FHIR R4 
 SEXO_A_GENDER_FHIR = {
     "Hombre":      "male",
     "Mujer":       "female",
@@ -34,7 +29,7 @@ SEXO_A_GENDER_FHIR = {
 }
 
 
-# ── Identidad de género ───────────────────────────────────────
+# Identidad de género 
 # Fuente: https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSIdentidaddeGenero
 # Extensión: https://hl7chile.cl/fhir/ig/clcore/StructureDefinition/IdentidadDeGenero
 
@@ -51,10 +46,10 @@ IDENTIDAD_GENERO_SYSTEM = "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSIdent
 IDENTIDAD_GENERO_URL    = "https://hl7chile.cl/fhir/ig/clcore/StructureDefinition/IdentidadDeGenero"
 
 
-# ── Nacionalidad ──────────────────────────────────────────────
+# Nacionalidad 
 # Fuente: ISO 3166-1 numérico
 # Extensión: https://hl7chile.cl/fhir/ig/clcore/StructureDefinition/CodigoPaises
-# Solo países más frecuentes en Chile — agregar según necesidad
+# Solo países más frecuentes en Chile 
 
 NACIONALIDAD = {
     "Chile":          {"code": "152", "display": "Chile"},
@@ -82,17 +77,34 @@ NACIONALIDAD = {
 NACIONALIDAD_SYSTEM = "urn:iso:std:iso:3166"
 NACIONALIDAD_URL    = "https://hl7chile.cl/fhir/ig/clcore/StructureDefinition/CodigoPaises"
 
-# Sistema y código del RUT (Registro Civil)
-RUT_SYSTEM     = "http://regcivil.cl/Validacion/RUN"
-RUT_TYPE_CODE  = "NNCHL"
-RUT_TYPE_SYSTEM= "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSCodigoDNI"
+# Códigos de Documento de Identidad por país (CSCodigoDNI) ──────
+# Fuente oficial: https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSCodigoDNI
+
+DNI_POR_PAIS = {
+    "Chile":               "NNCHL",
+    "Argentina":           "NNARG",
+    "Bolivia":             "NNBOL",
+    "Brasil":              "NNBRA",
+    "Colombia":            "NNCOL",
+    "Cuba":                "NNCUB",
+    "Ecuador":             "NNECU",
+    "Haití":               "NNHTI",
+    "México":              "NNMEX",
+    "Panamá":              "NNPAN",
+    "Paraguay":            "NNPRY",
+    "Perú":                "NNPER",
+    "República Dominicana":"NNDOM",
+    "Uruguay":             "NNURY",
+    "Venezuela":           "NNVEN",
+}
+DNI_SYSTEM = "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSCodigoDNI"
 
 
-# ══════════════════════════════════════════════════════════════
-# 2. CONDICIONES MÉDICAS — Condition
-# ══════════════════════════════════════════════════════════════
 
-# ── Estado de certeza (verificationStatus) ────────────────────
+# CONDICIONES MÉDICAS — Condition
+
+
+# Estado de certeza (verificationStatus)
 CERTEZA_CONDICION = {
     "Confirmado":    {"code": "confirmed",        "display": "Confirmed"},
     "Presuntivo":    {"code": "provisional",       "display": "Provisional"},
@@ -103,7 +115,7 @@ CERTEZA_CONDICION = {
 }
 CERTEZA_SYSTEM = "http://terminology.hl7.org/CodeSystem/condition-ver-status"
 
-# ── Estado de la condición (clinicalStatus) ───────────────────
+# Estado de la condición (clinicalStatus)
 ESTADO_CONDICION = {
     "Activa":        {"code": "active",      "display": "Active"},
     "Resuelta":      {"code": "resolved",    "display": "Resolved"},
@@ -115,24 +127,23 @@ ESTADO_CONDICION = {
 ESTADO_CONDICION_SYSTEM = "http://terminology.hl7.org/CodeSystem/condition-clinical"
 
 
-# ══════════════════════════════════════════════════════════════
-# 3. ALERGIAS — AllergyIntolerance
-# ══════════════════════════════════════════════════════════════
 
-# ── Criticidad ────────────────────────────────────────────────
+# ALERGIAS — AllergyIntolerance
+
+#Criticidad 
 CRITICIDAD_ALERGIA = {
     "Alta":              "high",
     "Baja":              "low",
     "Sin determinar":    "unable-to-assess",
 }
 
-# ── Tipo de evento ────────────────────────────────────────────
+#Tipo de evento
 TIPO_ALERGIA = {
     "Alergia":      "allergy",
     "Intolerancia": "intolerance",
 }
 
-# ── Estado del evento (clinicalStatus) ───────────────────────
+#Estado del evento (clinicalStatus)
 ESTADO_ALERGIA = {
     "Activa":   {"code": "active",   "display": "Active"},
     "Inactiva": {"code": "inactive", "display": "Inactive"},
@@ -140,7 +151,7 @@ ESTADO_ALERGIA = {
 }
 ESTADO_ALERGIA_SYSTEM = "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical"
 
-# ── Severidad de la reacción (por si se usa despues)──────────────────────────────────
+#Severidad de la reacción (por si se usa despues)
 SEVERIDAD_REACCION = {
     "Leve":     "mild",
     "Moderada": "moderate",
@@ -148,11 +159,10 @@ SEVERIDAD_REACCION = {
 }
 
 
-# ══════════════════════════════════════════════════════════════
-# 4. MEDICAMENTOS — MedicationRequest
-# ══════════════════════════════════════════════════════════════
 
-# ── Vía de administración ─────────────────────────────────────
+# 4. MEDICAMENTOS — MedicationRequest
+
+# Vía de administración 
 # Fuente: SNOMED CT
 VIA_ADMINISTRACION = {
     "Oral":            {"code": "26643006",  "display": "Oral"},
@@ -168,7 +178,7 @@ VIA_ADMINISTRACION = {
 }
 VIA_SYSTEM = "http://snomed.info/sct"
 
-# ── Estado del medicamento ────────────────────────────────────
+#Estado del medicamento
 ESTADO_MEDICAMENTO = {
     "Activo":      "active",
     "Suspendido":  "on-hold",
@@ -178,7 +188,7 @@ ESTADO_MEDICAMENTO = {
     "Error":       "entered-in-error",
 }
 
-# ── Unidades de dosis ─────────────────────────────────────────
+#Unidades de dosis 
 # Fuente: UCUM (http://unitsofmeasure.org)
 UNIDAD_DOSIS = {
     "mg":   {"code": "mg",   "display": "mg"},
@@ -189,7 +199,7 @@ UNIDAD_DOSIS = {
     "mEq":  {"code": "meq",  "display": "mEq"},
 }
 
-# ── Unidades de frecuencia (periodUnit) ───────────────────────
+#Unidades de frecuencia (periodUnit)
 UNIDAD_FRECUENCIA = {
     "hora":    "h",
     "horas":   "h",
@@ -201,12 +211,10 @@ UNIDAD_FRECUENCIA = {
     "meses":   "mo",
 }
 
+# TRATAMIENTOS / INTERVENCIONES — CarePlan
 
-# ══════════════════════════════════════════════════════════════
-# 5. TRATAMIENTOS / INTERVENCIONES — CarePlan
-# ══════════════════════════════════════════════════════════════
 
-# ── Tipo de tratamiento ───────────────────────────────────────
+#Tipo de tratamiento 
 TIPO_TRATAMIENTO = {
     "Nutricional":    {"code": "229440001", "display": "Nutritional therapy"},
     "Rehabilitación": {"code": "52052004",  "display": "Rehabilitation"},
@@ -218,7 +226,7 @@ TIPO_TRATAMIENTO = {
 }
 TIPO_TRATAMIENTO_SYSTEM = "http://snomed.info/sct"
 
-# ── Estado del tratamiento ────────────────────────────────────
+# Estado del tratamiento 
 ESTADO_TRATAMIENTO = {
     "Borrador":    "draft",
     "Activo":      "active",
@@ -228,19 +236,16 @@ ESTADO_TRATAMIENTO = {
     "Error":       "entered-in-error",
 }
 
+# OBSERVACIONES CLÍNICAS — Observation
 
-# ══════════════════════════════════════════════════════════════
-# 6. OBSERVACIONES CLÍNICAS — Observation
-# ══════════════════════════════════════════════════════════════
-
-# ── Tipo de observación (con códigos LOINC y unidad estándar) ─
+# Tipo de observación (con códigos LOINC y unidad estándar) 
 # Fuente: LOINC (http://loinc.org)
 TIPO_OBSERVACION = {
     "Presión arterial": {
         "loinc":    "55284-4",
         "display":  "Blood pressure systolic and diastolic",
-        "unidad":   None,          # sin unidad a nivel raíz (usa componentes)
-        "tipo":     "componente",  # indica que tiene sistólica y diastólica
+        "unidad":   None,          
+        "tipo":     "componente",  
         "categoria":"vital-signs",
     },
     "Frecuencia cardíaca": {
@@ -294,7 +299,7 @@ TIPO_OBSERVACION = {
     },
 }
 
-# ── Componentes de presión arterial (LOINC) ───────────────────
+# Componentes de presión arterial (LOINC)
 PRESION_ARTERIAL_COMPONENTES = {
     "sistolica": {
         "loinc":   "8480-6",
@@ -310,7 +315,7 @@ PRESION_ARTERIAL_COMPONENTES = {
     },
 }
 
-# ── Categorías de observación ─────────────────────────────────
+# Categorías de observación
 CATEGORIA_OBSERVACION_SYSTEM = "http://terminology.hl7.org/CodeSystem/observation-category"
 CATEGORIA_OBSERVACION = {
     "vital-signs": {"code": "vital-signs", "display": "Vital Signs"},
@@ -318,10 +323,7 @@ CATEGORIA_OBSERVACION = {
 }
 
 
-# ══════════════════════════════════════════════════════════════
-# FUNCIONES CONSTRUCTORAS
-# Convierten el input del usuario en estructuras FHIR listas para enviar
-# ══════════════════════════════════════════════════════════════
+# Funciones constructoras para crear pacientes
 
 def construir_extension_sexo(sexo_usuario):
     datos = SEXO_BIOLOGICO.get(sexo_usuario)
@@ -375,21 +377,24 @@ def construir_extension_nacionalidad(pais_usuario):
     }
 
 
-def construir_identifier_rut(rut_usuario):
+def construir_identifier_documento(valor_documento, pais_usuario):
+    tipo = {
+        "extension": [construir_extension_nacionalidad(pais_usuario)],
+    }
+    codigo_dni = DNI_POR_PAIS.get(pais_usuario)
+    if codigo_dni:
+        tipo["coding"] = [{
+            "system":  DNI_SYSTEM,
+            "code":    codigo_dni,
+            "display": pais_usuario,
+        }]
+    else:
+        tipo["text"] = f"Documento de identidad — {pais_usuario}"
+
     return {
-        "use": "official",
-        "type": {
-            "extension": [
-                construir_extension_nacionalidad("Chile")
-            ],
-            "coding": [{
-                "system":  RUT_TYPE_SYSTEM,
-                "code":    RUT_TYPE_CODE,
-                "display": "Chile"
-            }]
-        },
-        "system": RUT_SYSTEM,
-        "value":  rut_usuario
+        "use":   "official",
+        "type":  tipo,
+        "value": valor_documento,
     }
 
 
@@ -521,11 +526,9 @@ def construir_observation(tipo_usuario, valor, subject_url, fecha_hora, valor2=N
     return obs
 
 
-# ══════════════════════════════════════════════════════════════
 # FUNCIÓN PRINCIPAL: construir_paciente_fhir
 # Recibe los datos tal como vienen del formulario y devuelve el
 # recurso Patient FHIR completo listo para enviar.
-# ══════════════════════════════════════════════════════════════
 
 def construir_paciente_fhir(datos_formulario):
     nombre           = datos_formulario["nombre"]
@@ -586,7 +589,7 @@ def construir_paciente_fhir(datos_formulario):
         "resourceType": "Patient",
         "meta": {"profile": ["https://hl7chile.cl/fhir/ig/clcore/StructureDefinition/CorePacienteCl"]},
         "extension":  [e for e in exts if e],
-        "identifier": [construir_identifier_rut(rut)],
+        "identifier": [construir_identifier_documento(rut, nacionalidad)],
         "name":       [name_entry],
         "gender":     SEXO_A_GENDER_FHIR.get(sexo, "unknown"),
         "birthDate":  fecha_nacimiento,
@@ -602,9 +605,8 @@ def construir_paciente_fhir(datos_formulario):
 
     return paciente
 
-# ══════════════════════════════════════════════════════════════
 # DIAGNÓSTICOS CLÍNICOS — SNOMED CT
-# ══════════════════════════════════════════════════════════════
+
 DIAGNOSTICOS = {
     "Neumonía grave":                                    {"code": "233604007", "display": "Pneumonia"},
     "Infarto agudo al miocardio":                        {"code": "57054005",  "display": "Acute myocardial infarction"},
@@ -628,9 +630,9 @@ DIAGNOSTICOS = {
     "Síndrome de dificultad respiratoria aguda":         {"code": "67782005",  "display": "Respiratory distress syndrome"},
 }
 
-# ══════════════════════════════════════════════════════════════
+
 # SUSTANCIAS ALERGÉNICAS — SNOMED CT
-# ══════════════════════════════════════════════════════════════
+
 SUSTANCIAS_ALERGIAS = {
     "Penicilina":        {"code": "764146007", "display": "Penicillin"},
     "Amoxicilina":       {"code": "372687004", "display": "Amoxicillin"},
@@ -652,9 +654,9 @@ SUSTANCIAS_ALERGIAS = {
     "Gluten / Trigo":    {"code": "412071004", "display": "Gluten"},
 }
 
-# ══════════════════════════════════════════════════════════════
+
 # MANIFESTACIONES CLÍNICAS ALÉRGICAS — SNOMED CT
-# ══════════════════════════════════════════════════════════════
+
 MANIFESTACIONES_ALERGICAS = {
     "Urticaria":              {"code": "126485001", "display": "Urticaria"},
     "Anafilaxia":             {"code": "39579001",  "display": "Anaphylactic reaction"},
@@ -671,9 +673,9 @@ MANIFESTACIONES_ALERGICAS = {
     "Conjuntivitis alérgica": {"code": "9826008",   "display": "Conjunctivitis"},
 }
 
-# ══════════════════════════════════════════════════════════════
+
 # MEDICAMENTOS CLÍNICOS — SNOMED CT con dosis típicas
-# ══════════════════════════════════════════════════════════════
+
 MEDICAMENTOS_CLINICOS = {
     "Paracetamol":    {"code": "387517004", "dosis": 500,  "unit": "mg", "periodo": 6,  "periodo_unit": "h", "via": "Oral"},
     "Morfina":        {"code": "373529000", "dosis": 10,   "unit": "mg", "periodo": 4,  "periodo_unit": "h", "via": "Intravenosa"},
@@ -699,9 +701,9 @@ MEDICAMENTOS_CLINICOS = {
     "Ciprofloxacino": {"code": "372840008", "dosis": 500,  "unit": "mg", "periodo": 12, "periodo_unit": "h", "via": "Oral"},
 }
 
-# ══════════════════════════════════════════════════════════════
+
 # TRATAMIENTOS / INTERVENCIONES CLÍNICAS — SNOMED CT
-# ══════════════════════════════════════════════════════════════
+
 TRATAMIENTOS_CLINICOS = {
     "Oxigenoterapia suplementaria":    {"code": "57485005",  "display": "Oxygen therapy"},
     "Ventilación mecánica invasiva":   {"code": "40617009",  "display": "Mechanical ventilation"},
@@ -721,10 +723,8 @@ TRATAMIENTOS_CLINICOS = {
 }
 
 #datos faltantes
-# ══════════════════════════════════════════════════════════════
 # DATOS EIS — Estado Civil, Pueblo Indígena, Educación, Previsión
 # Fuente: DEIS-EIS Minsal
-# ══════════════════════════════════════════════════════════════
 
 ESTADO_CIVIL = {
     "Soltero":                {"code": "1",  "display": "Soltero"},
