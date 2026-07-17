@@ -1793,8 +1793,11 @@ def _procesar_recurso_detalle(r):
                  "sustancia":  _coding_display(r.get("code", {})) or "(sin nombre)",
                  "manif":      manif,
                  "criticidad": _CRIT_ES.get(r.get("criticality", ""), r.get("criticality", "(no disponible)")),
-                 "tipo_al":    _TIPO_ES.get(r.get("type", ""),         r.get("type",        "(no disponible)"))}]
-
+                 "tipo_al":    _TIPO_ES.get(r.get("type", ""),         r.get("type",        "(no disponible)")),
+                 "estado":     _EST_A_ES.get(_cod(r.get("clinicalStatus", {})),
+                                _coding_display(r.get("clinicalStatus", {}))) or "(no disponible)",
+                 "fecha":      r.get("onsetDateTime") or r.get("recordedDate", "(no disponible)")}]
+        
     elif rt == "CarePlan":
         cats    = r.get("category", [])
         cod_est = r.get("status", "")
