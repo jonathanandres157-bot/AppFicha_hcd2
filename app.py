@@ -34,12 +34,10 @@ USUARIOS = {
     'alumno01':   {'password': '1234', 'rol': 'estudiante', 'nombre': 'Alumno'},
 }
 
-
 # ──────────────────────────────────────────────────────────────
 # RUTAS
 # ──────────────────────────────────────────────────────────────
  
-
  #pantalla de inicio de sesión
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -205,7 +203,7 @@ def iniciar_atencion_route(patient_id):
         flash('Error al crear la atención en el servidor FHIR.', 'error')
         return redirect(url_for('ficha_paciente', patient_id=patient_id))
 
-    # Guardar en sesión para el GET directo inmediato (evita race condition)
+    # Guardar en sesión para el GET directo inmediato 
     session[f'enc_{patient_id}'] = encounter_id
 
     return redirect(url_for('atencion_route', patient_id=patient_id))
@@ -218,7 +216,7 @@ def atencion_route(patient_id):
         flash('Solo estudiantes acceden a la pantalla de atención.', 'error')
         return redirect(url_for('ficha_paciente', patient_id=patient_id))
 
-    # Usa el ID guardado en sesión para GET directo (sin depender del índice de búsqueda)
+    # Usa el ID guardado en sesión para GET directo 
     enc_id_sesion = session.get(f'enc_{patient_id}')
     encuentro = fhir_encuentro_activo(patient_id, enc_id_sesion)
     if not encuentro:
@@ -279,8 +277,6 @@ def agregar_recurso_route(patient_id):
         flash('No se pudo registrar en el servidor.', 'error')
 
     return redirect(url_for('atencion_route', patient_id=patient_id))
-
-
 
 @app.route('/pacientes/<patient_id>/finalizar-atencion', methods=['POST'])
 def finalizar_atencion_route(patient_id):
