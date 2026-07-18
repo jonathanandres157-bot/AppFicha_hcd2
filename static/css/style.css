@@ -171,15 +171,12 @@ a { text-decoration: none; color: inherit; }
 .btn-danger:hover { opacity: 0.88; }
 
 /* ════════════════════════════════════════════════════════
-   Elementos de formulario — BASE
-   (usados en login, formularios de edición, etc.)
+   Elementos de formulario 
    ════════════════════════════════════════════════════════ */
 
-/* .form-group y .form-label: genéricos */
 .form-group  { display: flex; flex-direction: column; gap: 0.3rem; }
 .form-label  { font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); }
 
-/* .form-input: sin padding de icono por defecto (para formularios de edición) */
 .form-input {
   width: 100%;
   padding: 0.42rem 0.65rem;
@@ -199,7 +196,6 @@ a { text-decoration: none; color: inherit; }
   box-shadow: 0 0 0 3px rgba(26,107,74,0.12);
 }
 
-/* ── icono absoluto requiere padding izquierdo ── */
 .input-wrapper {
   position: relative;
   display: flex;
@@ -207,7 +203,7 @@ a { text-decoration: none; color: inherit; }
 }
 .input-wrapper .form-input {
   height: 42px;
-  padding: 0 12px 0 40px; /* espacio para el ícono */
+  padding: 0 12px 0 40px; 
 }
 .input-icon {
   position: absolute; left: 12px;
@@ -221,7 +217,6 @@ a { text-decoration: none; color: inherit; }
 
 /* ════════════════════════════════════════════════════════
    Formulario de creación de paciente
-   (clases propias para no conflictuar con el login)
    ════════════════════════════════════════════════════════ */
 .patient-form-group  { display: flex; flex-direction: column; gap: 5px; }
 .patient-form-label  { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
@@ -419,7 +414,7 @@ a { text-decoration: none; color: inherit; }
 .repeatable-row .form-grid { flex: 1; }
 
 /* ════════════════════════════════════════════════════════
-   Ficha de paciente — ver
+   Ficha de paciente 
    ════════════════════════════════════════════════════════ */
 .badge-lg  { padding: 6px 14px; font-size: 13px; }
 .badge-inline {
@@ -475,7 +470,6 @@ a { text-decoration: none; color: inherit; }
   border-radius: 999px; padding: 2px 9px;
 }
 
-/* ── Tabla compartida (ver ficha + edición) ── */
 .ficha-tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
 .ficha-tabla thead tr { border-bottom: 1px solid var(--border); background: var(--surface-2); }
 .ficha-tabla th {
@@ -495,7 +489,6 @@ a { text-decoration: none; color: inherit; }
    Actualizar / Modificar — elementos propios
    ════════════════════════════════════════════════════════ */
 
-/* Page-wrapper para edición (sobreescribe el flex simple) */
 .page-wrapper.edit-wrapper {
   max-width: 1120px;
   margin: 0 auto;
@@ -505,10 +498,6 @@ a { text-decoration: none; color: inherit; }
   gap: 0;
 }
 
-/* Usa .edit-wrapper en actualizar_ficha.html y modificar_ficha.html:
-   <div class="page-wrapper edit-wrapper"> */
-
-/* Zona "agregar nuevo" */
 .nueva-seccion {
   padding: 1rem 1.25rem;
   background: var(--surface-2);
@@ -519,13 +508,11 @@ a { text-decoration: none; color: inherit; }
   text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.75rem;
 }
 
-/* Grid sin padding propio (dentro de repeatable-row o nueva-seccion) */
 .form-grid.no-pad { padding: 0; gap: 0.75rem; }
 .form-grid.col-2.no-pad { grid-template-columns: repeat(2, 1fr); }
 .form-grid.col-3.no-pad { grid-template-columns: repeat(3, 1fr); }
 .form-grid.col-4.no-pad { grid-template-columns: repeat(4, 1fr); }
 
-/* Filas repetibles en zona edición */
 .repeatable-row.edit-row {
   display: flex; align-items: flex-start; gap: 0.75rem;
   margin-bottom: 0.65rem; padding: 0.85rem;
@@ -533,7 +520,6 @@ a { text-decoration: none; color: inherit; }
 }
 .repeatable-row.edit-row .form-grid { flex: 1; }
 
-/* Botón quitar fila */
 .btn-remove-edit {
   flex-shrink: 0; margin-top: 1.55rem;
   padding: 0.3rem 0.5rem;
@@ -543,7 +529,6 @@ a { text-decoration: none; color: inherit; }
 }
 .btn-remove-edit:hover { background: var(--danger-bg); }
 
-/* Botón agregar fila */
 .btn-add-row {
   margin-top: 0.6rem; padding: 0.38rem 0.9rem;
   background: transparent; border: 1px dashed var(--accent);
@@ -552,7 +537,6 @@ a { text-decoration: none; color: inherit; }
 }
 .btn-add-row:hover { background: var(--accent-bg); }
 
-/* Botón quitar en creación (estilo original) */
 .btn-remove {
   width: 28px; height: 28px; margin-top: 28px; flex-shrink: 0;
   background: transparent; border: 1px solid var(--border-md);
@@ -562,7 +546,6 @@ a { text-decoration: none; color: inherit; }
 }
 .btn-remove:hover { background: var(--danger-bg); color: var(--danger-text); border-color: #f0c1c1; }
 
-/* Footer del form */
 .form-footer {
   display: flex; justify-content: flex-end; gap: 10px;
   padding-top: 0.5rem;
@@ -573,13 +556,11 @@ a { text-decoration: none; color: inherit; }
   margin-top: 0.5rem;
 }
 
-/* Grid datos del paciente */
 .patient-data-grid {
   display: grid; grid-template-columns: repeat(3, 1fr);
   gap: 1rem; padding: 1.25rem;
 }
 
-/* Card medicamento */
 .med-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 0.65rem;
@@ -648,7 +629,6 @@ a { text-decoration: none; color: inherit; }
   box-shadow: var(--shadow-sm);
 }
 
-/* Cabecera */
 .obs-card-header {
   display: flex;
   justify-content: space-between;
@@ -673,7 +653,6 @@ a { text-decoration: none; color: inherit; }
   margin-left: 2px;
 }
 
-/* Fila de estadísticas */
 .obs-stats-row {
   display: flex;
   background: var(--surface-2);
@@ -712,7 +691,6 @@ a { text-decoration: none; color: inherit; }
   margin-left: 1px;
 }
 
-/* Gráfico */
 .obs-chart-wrap {
   width: 100%;
   max-height: 160px;
@@ -727,7 +705,6 @@ a { text-decoration: none; color: inherit; }
   font-style: italic;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .obs-dashboard { grid-template-columns: 1fr; }
 }
@@ -762,7 +739,6 @@ a { text-decoration: none; color: inherit; }
 .obs-param-nombre { font-size: 0.78rem; font-weight: 600; color: var(--text-primary); }
 .obs-param-unidad { font-size: 0.68rem; color: var(--text-tertiary); }
 
-/* Inputs para parámetros seleccionados */
 .obs-inputs-titulo {
   font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 0.75rem;
@@ -796,7 +772,7 @@ a { text-decoration: none; color: inherit; }
 
 
 /* ════════════════════════════════════════════════════════
-   Ficha de paciente — versión reformulada
+   Ficha de paciente 
    ════════════════════════════════════════════════════════ */
 
 .ficha-wrapper {
@@ -805,7 +781,6 @@ a { text-decoration: none; color: inherit; }
   gap: 1rem;
 }
 
-/* ── Cabecera del paciente ────────────────────────────── */
 .ficha-header-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -860,7 +835,6 @@ a { text-decoration: none; color: inherit; }
   font-weight: 500;
 }
 
-/* ── Grid de cuatro secciones clínicas ───────────────── */
 .ficha-cuatro-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -953,7 +927,6 @@ a { text-decoration: none; color: inherit; }
   white-space: nowrap;
 }
 
-/* ── Sección de observaciones ────────────────────────── */
 .ficha-obs-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1029,7 +1002,6 @@ a { text-decoration: none; color: inherit; }
   height: 100% !important;
 }
 
-/* Stats sidebar */
 .obs-stats-sidebar {
   display: flex;
   flex-direction: column;
@@ -1077,7 +1049,6 @@ a { text-decoration: none; color: inherit; }
   margin-left: 2px;
 }
 
-/* Tabla últimas 10 */
 .obs-tabla-section { overflow: hidden; }
 
 .obs-tabla-header {
@@ -1097,7 +1068,6 @@ a { text-decoration: none; color: inherit; }
   background: var(--surface-2);
 }
 
-/* ── Responsive ──────────────────────────────────────── */
 
 @media (max-width: 768px) {
   .ficha-cuatro-grid   { grid-template-columns: 1fr; }
@@ -1107,10 +1077,6 @@ a { text-decoration: none; color: inherit; }
   .ficha-dato-label    { min-width: 120px; }
 }
 
-/* ════════════════════════════════════════════════════════
-   Ficha de paciente — versión reformulada
-   ════════════════════════════════════════════════════════ */
-
 .ficha-wrapper {
   display: flex;
   flex-direction: column;
@@ -1118,7 +1084,6 @@ a { text-decoration: none; color: inherit; }
   width: 100%;
 }
 
-/* ── Tarjeta principal unificada ─────────────────────── */
 .ficha-main-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1178,7 +1143,6 @@ a { text-decoration: none; color: inherit; }
   font-weight: 500;
 }
 
-/* ── Grid clínico 2x2 dentro de la tarjeta ───────────── */
 .ficha-clinical-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1275,7 +1239,6 @@ a { text-decoration: none; color: inherit; }
   white-space: nowrap;
 }
 
-/* ── Observaciones ───────────────────────────────────── */
 .ficha-obs-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1293,7 +1256,6 @@ a { text-decoration: none; color: inherit; }
   background: var(--surface-2);
 }
 
-/* Barra superior: selector + stats en una línea */
 .obs-top-bar {
   display: flex;
   align-items: center;
@@ -1335,7 +1297,6 @@ a { text-decoration: none; color: inherit; }
   box-shadow: 0 0 0 3px rgba(26,107,74,0.1);
 }
 
-/* Stats horizontales en chips */
 .obs-stats-horiz {
   display: flex;
   gap: 0.5rem;
@@ -1380,7 +1341,6 @@ a { text-decoration: none; color: inherit; }
   color: var(--text-tertiary);
 }
 
-/* Cuerpo: gráfico (izq) + tabla (der) */
 .obs-body-layout {
   display: grid;
   grid-template-columns: 3fr 2fr;
@@ -1454,7 +1414,6 @@ a { text-decoration: none; color: inherit; }
 .obs-simple-tabla tr:last-child td { border-bottom: none; }
 .obs-simple-tabla tbody tr:hover    { background: var(--surface-2); }
 
-/* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 900px) {
   .ficha-clinical-grid      { grid-template-columns: 1fr; }
   .ficha-clinical-block     { border-right: none; }
@@ -1466,8 +1425,6 @@ a { text-decoration: none; color: inherit; }
   .ficha-header-cols        { flex-direction: column; gap: 0.5rem; }
   .ficha-dato-label         { min-width: 120px; }
 }
-
-/*-- ── CSS exclusivo de esta pantalla ────────────────────── -->*/
 
 .fp-card {
   background: var(--surface);
@@ -1593,17 +1550,13 @@ a { text-decoration: none; color: inherit; }
 
 
 
-
-/* Anchar el contenedor solo en esta pantalla */
 .main-content { max-width: 1300px; }
 
-/* Medicamentos y Tratamientos ocupan todo el ancho */
 .fp-sections-grid .fp-section-card:nth-child(3),
 .fp-sections-grid .fp-section-card:nth-child(4) {
   grid-column: 1 / -1;
 }
 
-/* Observaciones más grandes y prominentes */
 .ficha-obs-card {
   border-top: 3px solid var(--accent);
 }
@@ -1623,7 +1576,6 @@ a { text-decoration: none; color: inherit; }
   font-size: 15px;
 }
 
-/* cabecera más compacta de cada recaudro*/
 .fp-section-header {
   padding: 0.55rem 1rem;
 }
@@ -1634,8 +1586,6 @@ a { text-decoration: none; color: inherit; }
 .fp-section-title {
   font-size: 13px;
 }
-
-/*stilo de pantalla de atención*/
 
 /* ── Encounter status badge ────────────────────────────── */
 .at-badge-active {
@@ -1655,7 +1605,6 @@ a { text-decoration: none; color: inherit; }
   50%{ opacity:0.5; transform:scale(1.3); }
 }
 
-/* ── Cards ─────────────────────────────────────────────── */
 .at-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1674,7 +1623,6 @@ a { text-decoration: none; color: inherit; }
   color: var(--text-primary); flex: 1;
 }
 
-/* ── Tabs ──────────────────────────────────────────────── */
 .at-tabs {
   display: flex;
   border-bottom: 1px solid var(--border);
@@ -1702,7 +1650,6 @@ a { text-decoration: none; color: inherit; }
   display: flex; justify-content: flex-end;
 }
 
-/* ── Resumen grid ──────────────────────────────────────── */
 .at-resumen-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
